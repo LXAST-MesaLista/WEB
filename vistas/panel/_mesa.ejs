@@ -1,0 +1,60 @@
+<%#
+  Ficha de una mesa en la sala. Variables: t (mesa de /panel/room), hoy y
+  volver (página a la que se vuelve después de cada acción).
+%>
+<%
+const c = t.current;
+const unidas = c !== null && c.tables.length > 1 ? c.tables.slice(1) : [];
+const estado = { free: 'Libre', occupied: 'Ocupada', blocked: 'Bloqueada', out_of_service: 'Fuera de servicio' }[t.state];
+-%>
+<article class="card h-100 ficha-mesa estado-<%= t.state %>">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-baseline">
+      <h3 class="h4 mb-0"><%= t.code %></h3>
+      <span class="small text-body-secondary">
+        <%= unidas.length ? `${Number(c.max_capacity)} plazas` : `${Number(t.min_capacity)}–${Number(t.max_capacity)} pers.` %>
+      </span>
+    </div>
+<% if (unidas.length) { -%>
+    <p class="small mb-1">+ <%= unidas.join(' + ') %> (unidas)</p>
+<% } -%>
+<% if (t.join_only && c === null) { -%>
+    <p class="small text-body-secondary mb-1">Mesa extra: solo para unir</p>
+<% } -%>
+    <p class="fw-semibold mb-1 texto-estado"><%= estado %></p>
+<% if (t.hold !== null && c === null) { -%>
+    <p class="small text-body-secondary mb-1"><%= t.hold.reason %> · hasta las <%= t.hold.until %></p>
+<% } -%>
+
+<% if (c !== null) { const id = Number(c.id); -%>
+    <p class="mb-1">
+      <strong><%= Formato.personas(c.party) %></strong> ·
+      <%= c.source === 'walkin' ? 'Sin reserva' : (c.name ?? 'Reserva') %>
+    </p>
+    <p class="small text-body-secondary mb-2">Desde <%= c.arrived_at %> · hasta <%= c.end_time %></p>
+<% if (c.note !== null) { -%>
+    <p class="small mb-2"><span class="badge text-bg-info">Nota</span> <%= c.note %></p>
+<% } -%>
+    <div class="d-flex flex-wrap gap-2">
+      <form method="post" action="/panel/reservas/<%= id %>/terminar">
+        <%- Csrf.campo() %>
+        <input type="hidden" name="volver" value="<%= volver %>">
+        <button class="btn btn-sm btn-primary" type="submit">Terminar</button>
+      </form>
+      <a class="btn btn-sm btn-outline-secondary" href="<%= url(`/panel/reservas/${id}/mesas`, { fecha: hoy, volver }) %>">Mesas…</a>
+    </div>
+<% if (Number(c.party) < Number(c.max_capacity)) { -%>
+    <form class="d-flex gap-2 mt-2 align-items-center" method="post" action="/panel/reservas/<%= id %>/comensales">
+      <%- Csrf.campo() %>
+      <input type="hidden" name="volver" value="<%= volver %>">
+      <label class="small text-nowrap" for="f-com-<%= id %>">Comensales</label>
+      <input class="form-control form-control-sm campo-numero" type="number" id="f-com-<%= id %>" name="party"
+             min="<%= Number(c.party) + 1 %>" max="<%= Number(c.max_capacity) %>" value="<%= Number(c.party) + 1 %>" required>
+      <button class="btn btn-sm btn-outline-secondary text-nowrap" type="submit">Cambiar</button>
+    </form>
+<% } -%>
+<% } else if (t.next !== null) { -%>
+    <p class="small mb-0">Próxima: <%= t.next.time %> · <%= Formato.personas(t.next.party) %></p>
+<% } -%>
+  </div>
+</article>

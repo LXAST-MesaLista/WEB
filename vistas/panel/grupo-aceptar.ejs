@@ -1,0 +1,31 @@
+<%# Aceptar un grupo. Variables: g (solicitud), mesas y aqui. %>
+<a class="d-inline-block mb-3" href="/panel/grupos">‹ Solicitudes de grupo</a>
+<h1 class="h3 mb-1">Aceptar · <%= Formato.fechaCorta(g.date) %> <%= g.time %> · <%= Formato.personas(g.party) %></h1>
+<p class="text-body-secondary"><%= g.name ?? 'Cuenta eliminada' %>. Solo se pueden elegir las mesas libres durante toda la reserva.</p>
+
+<form method="post" action="<%= aqui %>" data-suma-plazas data-base="0" data-necesarias="<%= Number(g.party) %>">
+  <%- Csrf.campo() %>
+<% for (const zona of [...new Set(mesas.map((t) => t.zone))]) { -%>
+  <fieldset class="card card-body shadow-sm mb-3">
+    <legend class="h6 float-none"><%= zona %></legend>
+    <div class="d-flex flex-wrap gap-3">
+<% for (const t of mesas.filter((m) => m.zone === zona)) { -%>
+      <div class="form-check opcion-mesa">
+        <input class="form-check-input" type="checkbox" name="table_ids[]" value="<%= Number(t.id) %>" id="f-mesa-<%= Number(t.id) %>"
+               data-plazas="<%= Number(t.max_capacity) %>"<%- t.free ? '' : ' disabled' %>>
+        <label class="form-check-label" for="f-mesa-<%= Number(t.id) %>">
+          <strong>Mesa <%= t.code %></strong> · hasta <%= Number(t.max_capacity) %><%= t.join_only ? ' · extra' : '' %><%= t.free ? '' : ' · ocupada' %>
+        </label>
+      </div>
+<% } -%>
+    </div>
+  </fieldset>
+<% } -%>
+
+  <p class="fw-semibold" data-suma-texto aria-live="polite">Elige mesas hasta sumar <%= Number(g.party) %> plazas.</p>
+  <div class="mb-3">
+    <label class="form-label" for="f-reply">Mensaje para el cliente (opcional)</label>
+    <textarea class="form-control" id="f-reply" name="reply" rows="2" maxlength="200"></textarea>
+  </div>
+  <button class="btn btn-primary" type="submit">Aceptar solicitud</button>
+</form>

@@ -1,0 +1,22 @@
+<%# Ticket. Variables: t (date, time, party, code, qr). %>
+<div class="mx-auto ancho-estrecho">
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <button class="btn btn-primary" type="button" data-imprimir>Imprimir</button>
+    <a class="btn btn-outline-secondary" href="/panel/nueva">Otra reserva</a>
+    <a class="btn btn-outline-secondary" href="<%= url('/panel/agenda', { fecha: t.date }) %>">Ver en la agenda</a>
+  </div>
+
+  <div class="ticket">
+    <p class="fw-bold fs-5 mb-1">MesaLista</p>
+    <p class="mb-0"><%= mayuscula(Formato.fechaLarga(t.date)) %></p>
+    <p class="display-6 fw-semibold mb-0"><%= t.time %></p>
+    <p class="mb-0"><%= Formato.personas(t.party) %></p>
+    <div class="qr" data-qr="<%= t.qr %>" role="img" aria-label="Código QR de la reserva"></div>
+    <p class="small mb-0">Código de reserva</p>
+    <p class="ticket-codigo mb-2"><%= `${String(t.code).slice(0, 5)} ${String(t.code).slice(5)}` %></p>
+    <p class="small mb-0">
+      Presenta este ticket al llegar. Si creas una cuenta en la web o en la app, puedes añadir
+      la reserva con este código y tu teléfono; desde entonces solo valdrá el QR de tu cuenta.
+    </p>
+  </div>
+</div>

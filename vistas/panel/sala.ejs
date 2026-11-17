@@ -1,0 +1,109 @@
+<%#
+  Sala. Variables: mesas (de la zona elegida), zonas, zona, vista
+  ('mesas' o 'mapa'), ahora, cuentas, elegida (mesa del plano), hoy y volver.
+%>
+<%
+// «Todas» va como zona=todas: url() quita los parámetros vacíos y, sin zona en
+// la dirección, se quedaría la zona recordada en la sesión.
+const enlace = (cambios) => url('/panel', { vista, zona: zona === '' ? 'todas' : zona, ...cambios });
+const ocupadas = mesas.filter((t) => t.state === 'occupied').map((t) => t.code);
+const zonasVisibles = zonas.filter((z) => zona === '' || z === zona);
+-%>
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0 me-2">Sala</h1>
+  <span class="text-body-secondary small">Actualizado a las <%= ahora %></span>
+  <div class="ms-auto d-flex flex-wrap gap-2">
+    <a class="btn btn-primary" href="/panel/escanear">Escanear QR</a>
+    <a class="btn btn-outline-primary" href="/panel/sin-reserva">Cliente sin reserva</a>
+    <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#cerrar-local">Cerrar local</button>
+  </div>
+</div>
+
+<div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+  <div class="btn-group" role="group" aria-label="Vista de la sala">
+    <a class="btn btn-sm <%= vista === 'mesas' ? 'btn-secondary' : 'btn-outline-secondary' %>" href="<%= enlace({ vista: 'mesas' }) %>"<%- vista === 'mesas' ? ' aria-current="page"' : '' %>>Por mesa</a>
+    <a class="btn btn-sm <%= vista === 'mapa' ? 'btn-secondary' : 'btn-outline-secondary' %>" href="<%= enlace({ vista: 'mapa' }) %>"<%- vista === 'mapa' ? ' aria-current="page"' : '' %>>Por mapa</a>
+  </div>
+  <ul class="nav nav-pills nav-sm" aria-label="Zona">
+    <li class="nav-item"><a class="nav-link py-1<%= zona === '' ? ' active' : '' %>" href="<%= enlace({ zona: 'todas' }) %>">Todas</a></li>
+<% for (const z of zonas) { -%>
+    <li class="nav-item"><a class="nav-link py-1<%= zona === z ? ' active' : '' %>" href="<%= enlace({ zona: z }) %>"><%= z %></a></li>
+<% } -%>
+  </ul>
+</div>
+
+<p class="leyenda small d-flex flex-wrap gap-3 mb-3">
+  <span><span class="punto estado-free"></span> Libres: <%= cuentas.free %></span>
+  <span><span class="punto estado-soon"></span> Reserva próxima</span>
+  <span><span class="punto estado-occupied"></span> Ocupadas: <%= cuentas.occupied %></span>
+<% if (cuentas.blocked) { %>  <span><span class="punto estado-blocked"></span> Bloqueadas: <%= cuentas.blocked %></span>
+<% } -%>
+  <span><span class="punto estado-out_of_service"></span> Fuera de servicio: <%= cuentas.out_of_service %></span>
+</p>
+
+<% if (vista === 'mesas') { -%>
+<% for (const z of zonasVisibles) { const lista = mesas.filter((t) => t.zone === z && t.joined_to === null); -%>
+<% if (lista.length) { -%>
+<section class="mb-4">
+  <h2 class="h5"><%= z %></h2>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xxl-4 g-3">
+<% for (const t of lista) { -%>
+    <div class="col"><%- fragmento('panel/_mesa', { t, hoy, volver }) %></div>
+<% } -%>
+  </div>
+</section>
+<% } -%>
+<% } -%>
+<% } else { const conPlano = zonasVisibles.filter((z) => mesas.some((t) => t.zone === z && !t.join_only)); -%>
+<% if (!conPlano.length) { -%>
+<p class="text-body-secondary">Las mesas extra no tienen plano: míralas en la vista «Por mesa».</p>
+<% } else { -%>
+<div class="row g-4">
+  <div class="col-xl-8">
+<% for (const z of conPlano) { -%>
+    <section class="mb-4">
+      <h2 class="h5"><%= z %></h2>
+      <%- fragmento('panel/_mapa', {
+          mesas: mesas.filter((t) => t.zone === z && !t.join_only),
+          ahora, elegida: elegida?.id ?? null, enlace,
+      }) %>
+    </section>
+<% } -%>
+  </div>
+  <aside class="col-xl-4">
+<% if (elegida !== null) { -%>
+    <%- fragmento('panel/_mesa', { t: elegida, hoy, volver }) %>
+<% } else { -%>
+    <p class="text-body-secondary">Toca una mesa del plano para ver su reserva y sus acciones.</p>
+<% } -%>
+  </aside>
+</div>
+<% } -%>
+<% } -%>
+
+<div class="modal fade" id="cerrar-local" tabindex="-1" aria-labelledby="cerrar-local-titulo" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" action="/panel/cerrar-local">
+      <%- Csrf.campo() %>
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="cerrar-local-titulo">Cerrar local</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          <%= ocupadas.length
+              ? `Se terminarán todas las reservas en curso y quedarán libres las mesas ${ocupadas.join(', ')}.`
+              : 'Ahora no hay ninguna mesa ocupada; se comprobará igualmente.' %>
+        </p>
+        <p class="text-body-secondary small">No cancela las reservas que aún no han llegado.</p>
+        <label class="form-label" for="f-pin">PIN del restaurante</label>
+        <input class="form-control pin" type="password" id="f-pin" name="pin" inputmode="numeric" autocomplete="off"
+               maxlength="8" pattern="[0-9]{4,8}" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Volver</button>
+        <button type="submit" class="btn btn-danger">Liberar todas las mesas</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+<%#
+  Llegada antes de la ventana con la mesa libre (RF-23).
+  Variables: mensaje, accion, campos (ocultos, p. ej. el QR) y volver.
+%>
+<div class="mx-auto ancho-estrecho py-md-4">
+  <h1 class="h3 mb-3">Llegada anticipada</h1>
+  <div class="alert alert-warning"><%= mensaje %></div>
+  <p>La mesa está libre: ¿registrar la llegada ahora? La reserva mantiene su hora de fin.</p>
+  <div class="d-flex flex-wrap gap-2">
+    <form method="post" action="<%= accion %>">
+      <%- Csrf.campo() %>
+      <input type="hidden" name="early" value="1">
+      <input type="hidden" name="volver" value="<%= volver %>">
+<% for (const [k, v] of Object.entries(campos)) { -%>
+      <input type="hidden" name="<%= k %>" value="<%= v %>">
+<% } -%>
+      <button class="btn btn-primary" type="submit">Registrar llegada anticipada</button>
+    </form>
+    <a class="btn btn-outline-secondary" href="<%= volver %>">No, volver</a>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<%# Solicitudes de grupo. Variables: cfg, pendientes y respondidas. %>
+<%
+const estados = {
+  accepted: ['Aceptada', 'text-bg-success'],
+  rejected: ['Rechazada', 'text-bg-danger'],
+  expired: ['Sin pagar', 'text-bg-dark'],
+  cancelled: ['Cancelada por el cliente', 'text-bg-light border'],
+};
+const recibida = (c) => `${c.slice(8, 10)}/${c.slice(5, 7)} ${c.slice(11)}`;
+-%>
+<h1 class="h3 mb-2">Solicitudes de grupo</h1>
+<p class="text-body-secondary">
+<% if (Number(cfg.deposit_per_person) > 0) { -%>
+  Grupos de más de <%= Number(cfg.max_party) %> personas. Al aceptar, eliges las mesas y el cliente tiene
+  <%= Number(cfg.deposit_hold_min) %> minutos para pagar una señal de <%= Number(cfg.deposit_per_person) %> € por persona;
+  mientras, las mesas quedan retenidas.
+<% } else { -%>
+  Grupos de más de <%= Number(cfg.max_party) %> personas. Al aceptar, eliges las mesas y la reserva queda confirmada
+  (sin señal: no hay PayPal configurado o la señal es 0 €).
+<% } -%>
+</p>
+
+<h2 class="h5 mt-4">Pendientes</h2>
+<% if (!pendientes.length) { -%>
+<div class="card card-body text-body-secondary mb-4">No hay solicitudes pendientes.</div>
+<% } -%>
+<div class="row row-cols-1 row-cols-lg-2 g-3 mb-4">
+<% for (const g of pendientes) { const id = Number(g.id); -%>
+  <div class="col">
+    <article class="card h-100 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between gap-2">
+          <strong><%= mayuscula(Formato.fechaLarga(g.date)) %> · <%= g.time %> · <%= Formato.personas(g.party) %></strong>
+          <span class="small text-body-secondary">Recibida <%= recibida(String(g.created_at)) %></span>
+        </div>
+        <p class="mb-2">
+          <%= g.name ?? 'Cuenta eliminada' %><%= g.phone ? ` · ${g.phone}` : '' %><%= g.email ? ` · ${g.email}` : '' %>
+        </p>
+<% if (g.note !== null) { -%>
+        <p class="small nota-agenda border-start border-3 border-info ps-2"><%= g.note %></p>
+<% } -%>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-sm btn-primary" href="/panel/grupos/<%= id %>/aceptar">Aceptar…</a>
+          <button class="btn btn-sm btn-outline-danger" type="button" data-bs-toggle="collapse" data-bs-target="#rechazar-<%= id %>"
+                  aria-expanded="false" aria-controls="rechazar-<%= id %>">Rechazar…</button>
+        </div>
+        <form class="collapse mt-3" id="rechazar-<%= id %>" method="post" action="/panel/grupos/<%= id %>/rechazar">
+          <%- Csrf.campo() %>
+          <label class="form-label" for="f-motivo-<%= id %>">Motivo (lo recibe el cliente)</label>
+          <textarea class="form-control mb-2" id="f-motivo-<%= id %>" name="reply" rows="2" maxlength="200" required
+                    placeholder="Por ejemplo: ese día tenemos un evento privado"></textarea>
+          <button class="btn btn-sm btn-danger" type="submit">Rechazar solicitud</button>
+        </form>
+      </div>
+    </article>
+  </div>
+<% } -%>
+</div>
+
+<h2 class="h5">Respondidas (30 días)</h2>
+<% if (!respondidas.length) { -%>
+<p class="text-body-secondary">Ninguna en los últimos 30 días.</p>
+<% } else { -%>
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead><tr><th scope="col">Día</th><th scope="col">Hora</th><th scope="col">Pers.</th><th scope="col">Cliente</th><th scope="col">Estado</th><th scope="col">Respuesta</th></tr></thead>
+    <tbody>
+<% for (const g of respondidas) { const [texto, clase] = estados[g.status] ?? [g.status, 'text-bg-secondary']; -%>
+      <tr>
+        <td><%= Formato.fechaCorta(g.date) %></td>
+        <td><%= g.time %></td>
+        <td><%= Number(g.party) %></td>
+        <td><%= g.name ?? '—' %></td>
+        <td><span class="badge <%= clase %>"><%= texto %></span></td>
+        <td class="small"><%= g.reply ?? '—' %></td>
+      </tr>
+<% } -%>
+    </tbody>
+  </table>
+</div>
+<% } -%>

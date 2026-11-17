@@ -1,0 +1,91 @@
+<%#
+  Plano SVG de una zona (1000 × 600): cada mesa en su posición, con una silla
+  por plaza y el color de su estado.
+  Variables: mesas, ahora ("HH:MM"), elegida (id o null) y enlace.
+    - En la sala, enlace es una función: al tocar una mesa se abre su ficha.
+    - En el editor de administración, enlace es null: las mesas se arrastran
+      (panel.js) y llevan sus dos formas, redonda y rectangular, para cambiarla.
+  Las mesas sin posición guardada se colocan en una cuadrícula al pie.
+%>
+<%
+const anchoPlano = 1000;
+const altoPlano = 600;
+const editor = enlace === null;
+const colocadas = Panel.colocar(mesas);
+const minutos = (hhmm) => Number(String(hhmm).slice(0, 2)) * 60 + Number(String(hhmm).slice(3, 5));
+const f1 = (n) => n.toFixed(1);
+
+// Estado en el plano: ocupada, fuera de servicio, bloqueada, con reserva en
+// los próximos 45 minutos («próxima») o libre.
+const estado = (t) => {
+  if (editor) return ['free', `${Number(t.max_capacity)} pl.`];
+  if (t.state === 'blocked') return ['blocked', 'Bloqueada'];
+  if (t.state === 'occupied') return ['occupied', Formato.personas(t.current.party)];
+  if (t.state === 'out_of_service') return ['out_of_service', 'Fuera'];
+  const falta = t.next !== null ? minutos(t.next.time) - minutos(ahora) : -1;
+  if (falta >= 0 && falta <= 45) return ['soon', t.next.time];
+  return ['free', 'Libre'];
+};
+
+// Sillas y tablero de una mesa con la forma indicada: una silla por plaza.
+const dibujo = (t, forma) => {
+  const n = Number(t.max_capacity);
+  let out = '';
+  if (forma === 'round') {
+    const r = Math.min(30 + n * 3.5, 70);
+    for (let k = 0; k < n; k++) {
+      const a = 2 * Math.PI * k / n - Math.PI / 2;
+      out += `<circle class="silla" cx="${f1(Math.cos(a) * (r + 13))}" cy="${f1(Math.sin(a) * (r + 13))}" r="9"/>`;
+    }
+    return `${out}<circle class="forma" r="${f1(r)}"/>`;
+  }
+  const w = Math.min(56 + n * 14, 230);
+  const h = 64;
+  const arriba = Math.ceil(n / 2);
+  for (const [cuantas, y] of [[arriba, -h / 2 - 17], [n - arriba, h / 2 + 5]]) {
+    for (let k = 0; k < cuantas; k++) {
+      const x = -w / 2 + w * (k + 1) / (cuantas + 1);
+      out += `<rect class="silla" x="${f1(x - 10)}" y="${f1(y)}" width="20" height="12" rx="4"/>`;
+    }
+  }
+  return `${out}<rect class="forma" x="${f1(-w / 2)}" y="${f1(-h / 2)}" width="${Math.trunc(w)}" height="${h}" rx="10"/>`;
+};
+
+// Mesas unidas: una línea discontinua entre las mesas de la misma reserva.
+const grupos = new Map();
+for (const t of colocadas) {
+  if (t.current && t.current.tables.length > 1) {
+    if (!grupos.has(t.current.id)) grupos.set(t.current.id, []);
+    grupos.get(t.current.id).push(`${t.pos_x},${t.pos_y}`);
+  }
+}
+-%>
+<div class="plano-sala border rounded-3<%= editor ? ' editor' : '' %>">
+  <svg viewBox="0 0 <%= anchoPlano %> <%= altoPlano %>" role="group" aria-label="Plano de la sala">
+    <rect class="suelo" x="4" y="4" width="<%= anchoPlano - 8 %>" height="<%= altoPlano - 8 %>" rx="18"/>
+<% for (const puntos of grupos.values()) { -%>
+<% if (puntos.length > 1) { -%>
+    <polyline class="union" points="<%= puntos.join(' ') %>"/>
+<% } -%>
+<% } -%>
+<% for (const t of colocadas) { const [clase, texto] = estado(t); const forma = t.shape === 'round' ? 'round' : 'rect'; -%>
+<% if (editor) { -%>
+    <g class="mesa-plano estado-free" data-id="<%= Number(t.id) %>" data-forma="<%= forma %>" tabindex="0" role="button"
+       aria-label="<%= `Mesa ${t.code}: arrástrala o usa las flechas` %>" transform="translate(<%= Math.trunc(t.pos_x) %> <%= Math.trunc(t.pos_y) %>)">
+      <g class="variante variante-round"><%- dibujo(t, 'round') %></g>
+      <g class="variante variante-rect"><%- dibujo(t, 'rect') %></g>
+      <text class="codigo" y="-4"><%= t.code %></text>
+      <text class="detalle" y="18"><%= texto %></text>
+    </g>
+<% } else { -%>
+    <a href="<%= enlace({ mesa: t.id }) %>" aria-label="<%= `Mesa ${t.code}, ${texto}` %>">
+      <g class="mesa-plano estado-<%= clase %><%= t.id === elegida ? ' elegida' : '' %>" transform="translate(<%= Math.trunc(t.pos_x) %> <%= Math.trunc(t.pos_y) %>)">
+        <%- dibujo(t, forma) %>
+        <text class="codigo" y="-4"><%= t.code %></text>
+        <text class="detalle" y="18"><%= texto %></text>
+      </g>
+    </a>
+<% } -%>
+<% } -%>
+  </svg>
+</div>

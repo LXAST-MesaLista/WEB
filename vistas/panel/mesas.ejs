@@ -1,0 +1,62 @@
+<%#
+  Mesas de una reserva. Variables: r (reserva), libres (mesas libres),
+  codigos (código → id), aqui y volver.
+%>
+<a class="d-inline-block mb-3" href="<%= volver %>">‹ Volver</a>
+<h1 class="h3 mb-1">Mesas de la reserva</h1>
+<p class="text-body-secondary mb-4">
+  <%= Formato.fechaCorta(r.date) %> · <%= r.time %>–<%= r.end_time %> ·
+  <%= Formato.personas(r.party) %><%= r.name !== null ? ` · ${r.name}` : '' %> · <%- Formato.estado(r.status) %>
+</p>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <section class="card card-body shadow-sm">
+      <h2 class="h5">Mesas de la reserva</h2>
+      <ul class="list-group list-group-flush">
+<% r.tables.forEach((codigo, i) => { -%>
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+          <span>Mesa <%= codigo %><%- i === 0 ? ' <span class="text-body-secondary small">· principal</span>' : '' %></span>
+<% if (i > 0 && Object.hasOwn(codigos, codigo)) { -%>
+          <form method="post" action="<%= aqui %>">
+            <%- Csrf.campo() %>
+            <input type="hidden" name="accion" value="separate">
+            <input type="hidden" name="table_id" value="<%= Number(codigos[codigo]) %>">
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Separar</button>
+          </form>
+<% } -%>
+        </li>
+<% }) -%>
+      </ul>
+      <p class="small text-body-secondary mt-2 mb-0">Ahora: <%= Number(r.max_capacity) %> plazas para <%= Formato.personas(r.party) %>.</p>
+    </section>
+  </div>
+
+  <div class="col-lg-8">
+    <form class="card card-body shadow-sm" method="post" action="<%= aqui %>"
+          data-suma-plazas data-base="<%= Number(r.max_capacity) %>" data-necesarias="<%= Number(r.party) %>">
+      <%- Csrf.campo() %>
+      <h2 class="h5">Mesas libres</h2>
+<% if (!libres.length) { -%>
+      <p class="text-body-secondary mb-0">No hay ninguna otra mesa libre durante esta reserva.</p>
+<% } else { -%>
+      <div class="d-flex flex-wrap gap-3 mb-3">
+<% for (const t of libres) { -%>
+        <div class="form-check opcion-mesa">
+          <input class="form-check-input" type="checkbox" name="table_ids[]" value="<%= Number(t.id) %>" id="f-mesa-<%= Number(t.id) %>" data-plazas="<%= Number(t.max_capacity) %>">
+          <label class="form-check-label" for="f-mesa-<%= Number(t.id) %>">
+            <strong>Mesa <%= t.code %></strong> · <%= t.join_only ? 'extra' : t.zone %> · hasta <%= Number(t.max_capacity) %>
+            <%- t.fits_as_main ? '' : '<span class="small text-body-secondary">(solo para unir)</span>' %>
+          </label>
+        </div>
+<% } -%>
+      </div>
+      <p class="small mb-3" data-suma-texto aria-live="polite">Marca una mesa para moverla allí o varias para unirlas.</p>
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" type="submit" name="accion" value="move">Mover a la mesa marcada</button>
+        <button class="btn btn-primary" type="submit" name="accion" value="join">Unir las mesas marcadas</button>
+      </div>
+<% } -%>
+    </form>
+  </div>
+</div>

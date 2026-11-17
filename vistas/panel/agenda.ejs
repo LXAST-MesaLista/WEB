@@ -1,0 +1,141 @@
+<%#
+  Agenda. Variables: fecha, hoy, q, reservas, bloqueos, comensales y volver.
+%>
+<%
+const dia = (n) => url('/panel/agenda', { fecha: Formato.sumarDias(fecha, n), q });
+const accion = (r, que, texto, clase, campos = {}, confirmar = null) => {
+  let html = `<form method="post" action="/panel/reservas/${Number(r.id)}/${que}"`
+    + (confirmar !== null ? ` data-confirmar="${esc(confirmar)}"` : '') + '>' + Csrf.campo()
+    + `<input type="hidden" name="volver" value="${esc(volver)}">`;
+  for (const [k, v] of Object.entries(campos)) {
+    html += `<input type="hidden" name="${esc(k)}" value="${esc(v)}">`;
+  }
+  return `${html}<button class="btn btn-sm ${clase}" type="submit">${esc(texto)}</button></form>`;
+};
+const pagada = (r) => r.deposit?.payment === 'captured';
+-%>
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0 me-2">Agenda</h1>
+  <form class="d-flex flex-wrap gap-2 ms-lg-auto" method="get" action="/panel/agenda" role="search" data-auto-enviar>
+    <div class="btn-group">
+      <a class="btn btn-outline-secondary" href="<%= dia(-1) %>" aria-label="Día anterior">‹</a>
+      <a class="btn btn-outline-secondary" href="<%= dia(1) %>" aria-label="Día siguiente">›</a>
+    </div>
+    <label class="visually-hidden" for="f-fecha">Día</label>
+    <input class="form-control w-auto" type="date" id="f-fecha" name="fecha" value="<%= fecha %>" required>
+    <a class="btn btn-outline-secondary<%= fecha === hoy ? ' active' : '' %>" href="<%= url('/panel/agenda', { fecha: hoy }) %>">Hoy</a>
+    <label class="visually-hidden" for="f-q">Buscar</label>
+    <input class="form-control w-auto" type="search" id="f-q" name="q" value="<%= q %>" maxlength="80" placeholder="Nombre o teléfono" data-no-auto>
+    <button class="btn btn-outline-primary" type="submit">Buscar</button>
+    <a class="btn btn-outline-secondary" href="<%= url('/panel/agenda.csv', { fecha }) %>" download>Exportar CSV</a>
+  </form>
+</div>
+
+<p class="text-body-secondary mb-2">
+  <%= mayuscula(Formato.fechaLarga(fecha)) %> ·
+  <%= reservas.length %> <%= reservas.length === 1 ? 'reserva' : 'reservas' %> ·
+  <%= comensales %> comensales pendientes o en sala
+</p>
+
+<% if (bloqueos.length) { -%>
+<div class="alert alert-warning py-2">
+  <strong>Bloqueos este día:</strong>
+<% bloqueos.forEach((b, i) => { -%>
+  <%= i ? ' · ' : '' %><%= `${b.from}–${b.to} ${b.table === null ? 'todas las mesas' : `mesa ${b.table}`} (${b.reason})` %>
+<% }) -%>
+  · <a class="alert-link" href="/panel/bloqueos">Gestionar</a>
+</div>
+<% } -%>
+
+<% if (!reservas.length) { -%>
+<div class="card card-body text-center text-body-secondary">
+  <%= q !== '' ? 'Ninguna reserva coincide con la búsqueda.' : 'No hay reservas este día.' %>
+</div>
+<% } else { -%>
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th scope="col">Hora</th><th scope="col">Mesa</th><th scope="col">Pers.</th><th scope="col">Cliente</th>
+        <th scope="col">Teléfono</th><th scope="col">Estado</th><th scope="col">Opciones y nota</th><th scope="col"><span class="visually-hidden">Acciones</span></th>
+      </tr>
+    </thead>
+    <tbody>
+<% for (const r of reservas) {
+     const opciones = Panel.opciones(r.menu_options);
+     const senal = Panel.senal(r);
+     const quien = r.linked ? 'El cliente recibirá un aviso y un correo.' : (r.source === 'local' ? 'Reserva sin cuenta: avisa al cliente por teléfono.' : '');
+-%>
+      <tr class="<%= r.note !== null ? 'fila-nota' : '' %>">
+        <td class="text-nowrap"><strong><%= r.time %></strong><div class="small text-body-secondary">– <%= r.end_time %></div></td>
+        <td class="text-nowrap"><%= Panel.mesas(r) %><%- r.tables.length > 1 ? '<div class="small text-body-secondary">unidas</div>' : '' %></td>
+        <td><%= Number(r.party) %></td>
+        <td><%= r.name ?? (r.source === 'walkin' ? 'Sin reserva' : '—') %><div class="small text-body-secondary"><%= Panel.origen(r) %></div></td>
+        <td class="text-nowrap"><%= r.phone ?? '—' %></td>
+        <td>
+          <%- Formato.estado(r.status) %>
+<% if (r.arrived_at !== null) { %><div class="small text-body-secondary">Llegó <%= r.arrived_at %></div><% } -%>
+<% if (senal !== null) { %><div class="small"><%= senal %></div><% } -%>
+        </td>
+        <td class="small">
+<% if (opciones.length) { %><div class="fw-semibold"><%= opciones.join(', ') %></div><% } -%>
+<% if (r.note !== null) { %><div class="nota-agenda"><%= r.note %></div><% } -%>
+        </td>
+        <td class="acciones-agenda text-nowrap">
+          <div class="d-flex flex-wrap gap-1 justify-content-end">
+<% if (r.status === 'confirmed') { -%>
+            <%- accion(r, 'llegada', 'Llegada', 'btn-primary') %>
+<% } -%>
+<% if (r.status === 'seated') { -%>
+            <%- accion(r, 'terminar', 'Terminar', 'btn-primary') %>
+<% } -%>
+<% if (['confirmed', 'seated', 'pending_payment'].includes(r.status)) { -%>
+            <a class="btn btn-sm btn-outline-secondary" href="<%= url(`/panel/reservas/${Number(r.id)}/mesas`, { fecha, volver }) %>">Mesas…</a>
+<% } -%>
+<% if (r.has_ticket) { -%>
+            <a class="btn btn-sm btn-outline-secondary" href="/panel/reservas/<%= Number(r.id) %>/ticket">Ticket</a>
+<% } -%>
+<% if (['confirmed', 'pending_payment'].includes(r.status)) { -%>
+<% if (pagada(r)) { -%>
+            <button class="btn btn-sm btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#cancelar-<%= Number(r.id) %>">Cancelar…</button>
+<% } else { -%>
+            <%- accion(r, 'cancelar', 'Cancelar', 'btn-outline-danger', {},
+                `¿Cancelar la reserva de las ${r.time} (${Formato.personas(r.party)})? ${quien}`) %>
+<% } -%>
+<% } -%>
+          </div>
+        </td>
+      </tr>
+<% } -%>
+    </tbody>
+  </table>
+</div>
+
+<% for (const r of reservas) { -%>
+<% if (pagada(r) && ['confirmed', 'pending_payment'].includes(r.status)) { const id = Number(r.id); -%>
+<div class="modal fade" id="cancelar-<%= id %>" tabindex="-1" aria-labelledby="cancelar-<%= id %>-t" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="cancelar-<%= id %>-t">
+          Cancelar · <%= r.time %> · <%= Formato.personas(r.party) %><%= r.name !== null ? ` · ${r.name}` : '' %>
+        </h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p>Esta reserva tiene una señal pagada de <%= r.deposit.amount %>.</p>
+        <p class="small text-body-secondary mb-0">
+          Se devuelve si cancela el restaurante o si el cliente avisa dentro del plazo.
+          Si avisa fuera de plazo, no se devuelve.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <%- accion(r, 'cancelar', 'Cancelar sin devolver', 'btn-outline-secondary', { refund: '0' }) %>
+        <%- accion(r, 'cancelar', `Cancelar y devolver ${r.deposit.amount}`, 'btn-danger', { refund: '1' }) %>
+      </div>
+    </div>
+  </div>
+</div>
+<% } -%>
+<% } -%>
+<% } -%>

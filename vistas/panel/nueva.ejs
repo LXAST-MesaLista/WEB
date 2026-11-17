@@ -1,0 +1,61 @@
+<%#
+  Reserva en el local. Variables: cfg, hoy, maxDia, fecha, personas,
+  aqui, horas, errorHoras, datos, extras y errores.
+%>
+<h1 class="h3 mb-3">Reserva en el local</h1>
+
+<% if (errores._ !== undefined) { -%>
+<div class="alert alert-danger" role="alert"><%= errores._ %></div>
+<% } -%>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <form class="card card-body shadow-sm" method="get" action="/panel/nueva" data-auto-enviar>
+      <h2 class="h5">Día y comensales</h2>
+      <label class="form-label" for="f-fecha">Día</label>
+      <input class="form-control mb-3" type="date" id="f-fecha" name="fecha" value="<%= fecha %>" min="<%= hoy %>" max="<%= maxDia %>" required>
+      <label class="form-label" for="f-personas">Comensales</label>
+      <input class="form-control mb-3 campo-numero" type="number" id="f-personas" name="personas" min="1" max="<%= Number(cfg.max_party) %>" value="<%= personas %>" required>
+      <button class="btn btn-outline-primary sin-js" type="submit">Ver horas libres</button>
+      <p class="form-text mb-0"><%= mayuscula(Formato.fechaLarga(fecha)) %></p>
+    </form>
+  </div>
+
+  <div class="col-lg-8">
+    <form method="post" action="<%= aqui %>">
+      <%- Csrf.campo() %>
+      <fieldset class="card card-body shadow-sm mb-3">
+        <legend class="h5 float-none">Hora</legend>
+<% if (errorHoras !== null) { -%>
+        <div class="alert alert-danger mb-0"><%= errorHoras %></div>
+<% } else if (!horas.length) { -%>
+        <p class="text-body-secondary mb-0">No hay horas libres ese día para <%= Formato.personas(personas) %>.</p>
+<% } else { -%>
+        <div class="d-flex flex-wrap gap-2">
+<% horas.forEach((t, i) => { -%>
+          <input type="radio" class="btn-check" name="hora" id="f-hora-<%= i %>" value="<%= t %>" autocomplete="off"<%- t === datos.hora ? ' checked' : '' %> required>
+          <label class="btn btn-outline-primary hora" for="f-hora-<%= i %>"><%= t %></label>
+<% }) -%>
+        </div>
+<% } -%>
+      </fieldset>
+
+      <fieldset class="card card-body shadow-sm mb-3">
+        <legend class="h5 float-none">Cliente</legend>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%- campo('name', 'Nombre', datos.name, { required: true, minlength: 2, maxlength: 80, autocomplete: 'off' }, null, errores) %>
+          </div>
+          <div class="col-md-6">
+            <%- campo('phone', 'Teléfono', datos.phone, { type: 'tel', required: true, maxlength: 25, autocomplete: 'off' },
+                'Para avisarle de una incidencia y para que pueda añadir la reserva a su cuenta.', errores) %>
+          </div>
+        </div>
+      </fieldset>
+
+      <%- fragmento('cliente/_extras', { cfg, extras, errores, consentimiento:
+          'El cliente consiente que el restaurante use las opciones y la nota (pueden revelar datos de salud) solo para preparar su visita. Sin consentimiento no se guardan.' }) %>
+      <button class="btn btn-primary btn-lg w-100" type="submit">Registrar y generar ticket</button>
+    </form>
+  </div>
+</div>
