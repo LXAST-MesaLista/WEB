@@ -1,0 +1,45 @@
+# MesaLista · servicio de la web (Node.js)
+# instalar.sh sustituye __APP_DIR__ y __NODE__ y lo copia en
+# /etc/systemd/system/mesalista-web.service.
+
+[Unit]
+Description=MesaLista · web de reservas y panel del restaurante
+Documentation=https://github.com/LXPT-UIB/WEB
+After=network-online.target mesalista-api.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mesalista-web
+Group=mesalista-web
+WorkingDirectory=__APP_DIR__
+Environment=NODE_ENV=production
+Environment=TZ=Europe/Madrid
+ExecStart=__NODE__ __APP_DIR__/src/servidor.js
+# El servicio vuelve a arrancar solo si se cae.
+Restart=always
+RestartSec=2
+# Sus mensajes van al diario: journalctl -u mesalista-web
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mesalista-web
+
+# Las sesiones se guardan en /var/lib/mesalista-web/sesiones (systemd crea
+# la carpeta con el dueño del servicio y permisos 700).
+StateDirectory=mesalista-web
+StateDirectoryMode=0700
+
+# Endurecimiento: sin privilegios, sin escribir fuera de lo necesario.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadOnlyPaths=__APP_DIR__
+
+[Install]
+WantedBy=multi-user.target
