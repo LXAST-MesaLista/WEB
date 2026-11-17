@@ -1,0 +1,56 @@
+<%#
+  Gráfico de barras de una sola serie, en SVG hecho en el servidor (sin
+  librerías ni estilos en línea). Un solo color y sin leyenda: el título de
+  la sección la nombra. Barras finas con la parte de arriba redondeada,
+  rejilla suave y, al pasar por encima, la cifra exacta (<title>).
+  Variables: puntos (lista de { corta, larga, valor, texto }), descripcion
+  (para lectores de pantalla) y, opcional, cada (una etiqueta del eje cada
+  tantas barras).
+%>
+<%
+const W = 720, H = 240, L = 44, R = 8, T = 12, B = 34;
+const maximo = Math.max(0, ...puntos.map((p) => p.valor));
+// Máximo «redondo» del eje (1, 2, 5 × 10^n) por encima del valor.
+let redondo = 1;
+if (maximo > 0) {
+  const p = 10 ** Math.floor(Math.log10(maximo));
+  for (const m of [1, 2, 5, 10]) {
+    if (m * p >= maximo) {
+      redondo = m * p;
+      break;
+    }
+  }
+}
+const anchoUtil = W - L - R;
+const altoUtil = H - T - B;
+const paso = anchoUtil / Math.max(1, puntos.length);
+const ancho = Math.max(3, Math.min(30, paso - 2));
+const cadaN = locals.cada ?? Math.max(1, Math.ceil(puntos.length / 12));
+const f = (v) => String(Number(v.toFixed(1)));
+-%>
+<div class="grafico">
+  <svg viewBox="0 0 <%= W %> <%= H %>" role="img" aria-label="<%= descripcion %>">
+<% for (let i = 0; i <= 4; i++) { const y = T + altoUtil - altoUtil * i / 4; -%>
+    <line class="rejilla" x1="<%= L %>" x2="<%= W - R %>" y1="<%= f(y) %>" y2="<%= f(y) %>"/>
+    <text class="eje" x="<%= L - 8 %>" y="<%= f(y + 4) %>" text-anchor="end"><%= Math.round(redondo * i / 4) %></text>
+<% } -%>
+<% puntos.forEach((d, i) => {
+     const x = L + i * paso + (paso - ancho) / 2;
+     const alto = altoUtil * d.valor / redondo;
+     const y = T + altoUtil - alto;
+     const r = Math.min(4, alto, ancho / 2);
+-%>
+    <g>
+      <title><%= `${d.larga}: ${d.texto}` %></title>
+      <rect class="zona-barra" x="<%= f(L + i * paso) %>" y="<%= T %>" width="<%= f(paso) %>" height="<%= altoUtil %>"/>
+<% if (alto > 0) { -%>
+      <path class="barra" d="M<%= f(x) %>,<%= T + altoUtil %> V<%= f(y + r) %> Q<%= f(x) %>,<%= f(y) %> <%= f(x + r) %>,<%= f(y) %> H<%= f(x + ancho - r) %> Q<%= f(x + ancho) %>,<%= f(y) %> <%= f(x + ancho) %>,<%= f(y + r) %> V<%= T + altoUtil %> Z"/>
+<% } -%>
+    </g>
+<% if (i % cadaN === 0) { -%>
+    <text class="eje" x="<%= f(x + ancho / 2) %>" y="<%= H - 12 %>" text-anchor="middle"><%= d.corta %></text>
+<% } -%>
+<% }) -%>
+    <line class="base" x1="<%= L %>" x2="<%= W - R %>" y1="<%= T + altoUtil %>" y2="<%= T + altoUtil %>"/>
+  </svg>
+</div>

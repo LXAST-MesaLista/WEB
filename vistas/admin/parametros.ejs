@@ -1,0 +1,70 @@
+<%# Parámetros. Variables: valores, rangos, opciones (menú), pin (fijado o no) y errores. %>
+<h1 class="h3 mb-3">Parámetros</h1>
+
+<% if (errores._ !== undefined) { -%>
+<div class="alert alert-danger" role="alert"><%= errores._ %></div>
+<% } -%>
+
+<form class="card card-body shadow-sm mb-4" method="post" action="/panel/admin/parametros">
+  <%- Csrf.campo() %>
+  <h2 class="h5">Parámetros del servicio</h2>
+  <p class="small text-body-secondary">Los cambios solo afectan a las reservas creadas después.</p>
+  <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+<% for (const [k, etiqueta] of Object.entries(Admin.PARAMETROS)) { const [min, max] = rangos[k]; -%>
+    <div class="col">
+      <%- campo(k, etiqueta, valores[k], { type: 'number', required: true, min, max }, `Entre ${min} y ${max}`, errores) %>
+    </div>
+<% } -%>
+  </div>
+  <div><button class="btn btn-primary" type="submit">Guardar parámetros</button></div>
+</form>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <form class="card card-body shadow-sm h-100" method="post" action="/panel/admin/pin">
+      <%- Csrf.campo() %>
+      <h2 class="h5">PIN de «Cerrar local»</h2>
+      <p class="small text-body-secondary">
+        <%= pin
+            ? 'Hay un PIN fijado. El personal lo necesita para liberar todas las mesas desde la sala. Escribe uno nuevo para cambiarlo.'
+            : 'Aún no hay PIN: el botón «Cerrar local» de la sala no funcionará hasta que lo fijes.' %>
+      </p>
+      <div class="row g-2 mb-3">
+        <div class="col-sm-6">
+          <label class="form-label" for="f-pin">PIN nuevo (4 a 8 cifras)</label>
+          <input class="form-control pin" type="password" id="f-pin" name="pin" inputmode="numeric" autocomplete="new-password" maxlength="8" pattern="[0-9]{4,8}" required>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label" for="f-pin2">Repite el PIN</label>
+          <input class="form-control pin" type="password" id="f-pin2" name="pin2" inputmode="numeric" autocomplete="new-password" maxlength="8" pattern="[0-9]{4,8}" required data-igual-a="f-pin">
+        </div>
+      </div>
+      <div><button class="btn btn-primary" type="submit"><%= pin ? 'Cambiar PIN' : 'Fijar PIN' %></button></div>
+    </form>
+  </div>
+
+  <div class="col-lg-6">
+    <section class="card card-body shadow-sm h-100">
+      <h2 class="h5">Opciones de menú</h2>
+      <p class="small text-body-secondary">Las que el cliente puede marcar al reservar (sin gluten, vegetariano…).</p>
+      <ul class="list-group mb-3">
+<% for (const o of opciones) { -%>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span class="<%= o.active ? '' : 'text-body-secondary' %>"><%= o.name %><%= o.active ? '' : ' (desactivada)' %></span>
+          <form method="post" action="/panel/admin/menu/<%= Number(o.id) %>">
+            <%- Csrf.campo() %>
+            <input type="hidden" name="active" value="<%= o.active ? '0' : '1' %>">
+            <button class="btn btn-sm btn-outline-secondary" type="submit"><%= o.active ? 'Desactivar' : 'Activar' %></button>
+          </form>
+        </li>
+<% } -%>
+      </ul>
+      <form class="d-flex gap-2" method="post" action="/panel/admin/menu">
+        <%- Csrf.campo() %>
+        <label class="visually-hidden" for="f-opcion">Nueva opción</label>
+        <input class="form-control" type="text" id="f-opcion" name="name" minlength="2" maxlength="40" required placeholder="Nueva opción">
+        <button class="btn btn-outline-primary" type="submit">Añadir</button>
+      </form>
+    </section>
+  </div>
+</div>

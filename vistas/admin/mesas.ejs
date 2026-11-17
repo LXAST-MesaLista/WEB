@@ -1,0 +1,82 @@
+<%#
+  Mesas y plano. Variables: mesas, zonasLista (para sugerir zonas),
+  zonas (con plano), zona (la del editor) y plano (sus mesas).
+%>
+<h1 class="h3 mb-2">Mesas y plano</h1>
+<p class="text-body-secondary small">
+  El código de cada mesa es la inicial de su zona y su número: S-1 (sala), T-1 (terraza), E-1 (extra).
+  Las mesas «solo unir» no tienen plano ni se ofrecen solas: sirven para unirlas a otra y ganar plazas.
+  Una mesa desactivada deja de ofrecerse; sus reservas futuras pasan a otra mesa adecuada y, si no hay
+  ninguna, se cancelan con aviso al titular. Una mesa con reservas pendientes no se puede eliminar.
+</p>
+
+<datalist id="zonas">
+<% for (const z of zonasLista) { %><option value="<%= z %>"></option><% } %>
+</datalist>
+
+<div class="table-responsive mb-4">
+  <table class="table align-middle">
+    <thead>
+      <tr><th scope="col">Mesa</th><th scope="col">Zona</th><th scope="col">Número</th><th scope="col">Mín.</th><th scope="col">Máx.</th>
+        <th scope="col">Tipo</th><th scope="col">Estado</th><th scope="col"><span class="visually-hidden">Acciones</span></th></tr>
+    </thead>
+    <tbody>
+<% for (const t of mesas) { -%>
+      <%- fragmento('admin/_fila-mesa', { t }) %>
+<% } -%>
+      <%- fragmento('admin/_fila-mesa', { t: null }) %>
+    </tbody>
+  </table>
+</div>
+
+<section class="card card-body shadow-sm">
+  <h2 class="h5">Plano de la sala</h2>
+  <p class="text-body-secondary small">
+    Arrastra las mesas a su sitio (o elígelas y muévelas con las flechas del teclado; con Mayúsculas, más deprisa).
+    «Cambiar forma» alterna entre redonda y rectangular. Nada cambia hasta pulsar «Guardar plano».
+  </p>
+<% if (!zonas.length) { -%>
+  <p class="text-body-secondary mb-0">Todavía no hay mesas con plano.</p>
+<% } else { -%>
+  <ul class="nav nav-pills mb-3" aria-label="Zona del plano">
+<% for (const z of zonas) { -%>
+    <li class="nav-item"><a class="nav-link py-1<%= z === zona ? ' active' : '' %>" href="<%= url('/panel/admin/mesas', { zona: z }) %>"><%= z %></a></li>
+<% } -%>
+  </ul>
+  <form method="post" action="<%= url('/panel/admin/plano', { zona }) %>" data-editor-plano>
+    <%- Csrf.campo() %>
+    <%- fragmento('panel/_mapa', { mesas: plano.map((t) => ({ state: 'free', current: null, next: null, ...t })),
+        ahora: '00:00', elegida: null, enlace: null }) %>
+    <details class="mt-3">
+      <summary class="small">Posiciones en números</summary>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mt-2">
+          <thead><tr><th scope="col">Mesa</th><th scope="col">X (0–1000)</th><th scope="col">Y (0–600)</th><th scope="col">Forma</th></tr></thead>
+          <tbody>
+<% plano.forEach((t, i) => { -%>
+            <tr data-mesa-plano="<%= Number(t.id) %>">
+              <td><%= t.code %><input type="hidden" name="tables[<%= i %>][id]" value="<%= Number(t.id) %>"></td>
+              <td><input class="form-control form-control-sm campo-numero" type="number" name="tables[<%= i %>][pos_x]" min="0" max="1000" required
+                         value="<%= Math.trunc(t.pos_x ?? 0) %>" data-campo="x" aria-label="X de <%= t.code %>"></td>
+              <td><input class="form-control form-control-sm campo-numero" type="number" name="tables[<%= i %>][pos_y]" min="0" max="600" required
+                         value="<%= Math.trunc(t.pos_y ?? 0) %>" data-campo="y" aria-label="Y de <%= t.code %>"></td>
+              <td>
+                <select class="form-select form-select-sm w-auto" name="tables[<%= i %>][shape]" data-campo="forma" aria-label="Forma de <%= t.code %>">
+                  <option value="rect"<%- t.shape !== 'round' ? ' selected' : '' %>>Rectangular</option>
+                  <option value="round"<%- t.shape === 'round' ? ' selected' : '' %>>Redonda</option>
+                </select>
+              </td>
+            </tr>
+<% }) -%>
+          </tbody>
+        </table>
+      </div>
+    </details>
+    <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+      <button class="btn btn-outline-secondary" type="button" data-cambiar-forma disabled>Cambiar forma</button>
+      <button class="btn btn-primary" type="submit">Guardar plano</button>
+      <span class="small text-body-secondary" data-estado-plano aria-live="polite"></span>
+    </div>
+  </form>
+<% } -%>
+</section>

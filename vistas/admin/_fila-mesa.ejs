@@ -1,0 +1,43 @@
+<%# Una mesa en la tabla de administración (o la fila para una nueva). Variables: t (mesa o null). %>
+<%
+const id = t === null ? 'nueva' : String(Number(t.id));
+const f = `mesa-${id}`;
+-%>
+<tr class="<%= t === null ? 'fila-nueva' : (t.active ? '' : 'text-body-secondary') %>">
+  <td class="fw-semibold"><%= t === null ? 'Nueva' : t.code %></td>
+  <td><input class="form-control form-control-sm campo-zona" form="<%= f %>" name="zone" list="zonas" maxlength="40" required
+             value="<%= t?.zone ?? '' %>" aria-label="Zona" placeholder="Sala, Terraza…"></td>
+  <td><input class="form-control form-control-sm campo-numero" form="<%= f %>" type="number" name="number" min="1" max="999" required
+             value="<%= t?.number ?? '' %>" aria-label="Número"></td>
+  <td><input class="form-control form-control-sm campo-numero" form="<%= f %>" type="number" name="min_capacity" min="1" max="50" required
+             value="<%= Number(t?.min_capacity ?? 1) %>" aria-label="Plazas mínimas"></td>
+  <td><input class="form-control form-control-sm campo-numero" form="<%= f %>" type="number" name="max_capacity" min="1" max="50" required
+             value="<%= Number(t?.max_capacity ?? 4) %>" aria-label="Plazas máximas"></td>
+  <td>
+    <div class="form-check mb-0">
+      <input class="form-check-input" form="<%= f %>" type="checkbox" name="join_only" value="1" id="<%= f %>-extra"<%- t?.join_only ? ' checked' : '' %>
+             <%- t !== null && !t.join_only ? `data-confirmar-al-marcar="${esc(`¿Convertir la mesa ${t.code} en extra? Deja de ofrecerse sola y sale del plano; sus reservas futuras pasarán a otra mesa.`)}"` : '' %>>
+      <label class="form-check-label small" for="<%= f %>-extra">Solo unir</label>
+    </div>
+  </td>
+  <td>
+    <div class="form-check mb-0">
+      <input class="form-check-input" form="<%= f %>" type="checkbox" name="active" value="1" id="<%= f %>-activa"<%- (t?.active ?? true) ? ' checked' : '' %>
+             <%- t !== null && t.active ? `data-confirmar-al-desmarcar="${esc(`¿Desactivar la mesa ${t.code}? Sus reservas futuras pasarán a otra mesa o, si no hay ninguna, se cancelarán con aviso al cliente.`)}"` : '' %>>
+      <label class="form-check-label small" for="<%= f %>-activa">Activa</label>
+    </div>
+  </td>
+  <td class="text-nowrap text-end">
+    <form class="d-inline" id="<%= f %>" method="post" action="<%= t === null ? '/panel/admin/mesas' : `/panel/admin/mesas/${Number(t.id)}` %>">
+      <%- Csrf.campo() %>
+      <button class="btn btn-sm <%= t === null ? 'btn-primary' : 'btn-outline-primary' %>" type="submit"><%= t === null ? 'Añadir' : 'Guardar' %></button>
+    </form>
+<% if (t !== null) { -%>
+    <form class="d-inline" method="post" action="/panel/admin/mesas/<%= Number(t.id) %>/eliminar"
+          data-confirmar="<%= `¿Eliminar la mesa ${t.code}? Si tiene reservas pendientes, antes hay que moverlas o cancelarlas. Las reservas antiguas se conservan.` %>">
+      <%- Csrf.campo() %>
+      <button class="btn btn-sm btn-outline-secondary" type="submit">Eliminar</button>
+    </form>
+<% } -%>
+  </td>
+</tr>

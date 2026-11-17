@@ -1,0 +1,44 @@
+<%# Clientes. Variables: q y clientes. %>
+<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+  <h1 class="h3 mb-0 me-auto">Clientes</h1>
+  <form class="d-flex gap-2" method="get" action="/panel/admin/clientes" role="search">
+    <label class="visually-hidden" for="f-q">Buscar</label>
+    <input class="form-control" type="search" id="f-q" name="q" value="<%= q %>" maxlength="80" placeholder="Nombre, correo o teléfono">
+    <button class="btn btn-outline-primary" type="submit">Buscar</button>
+  </form>
+</div>
+<p class="small text-body-secondary">Datos personales de los clientes: úsalos solo para gestionar sus reservas (RP-01).</p>
+
+<% const uno = clientes.length === 1; -%>
+<p class="text-body-secondary">
+  <%= clientes.length %> <%= uno ? 'cliente' : 'clientes' %><%= q !== '' ? (uno ? ' coincide con la búsqueda' : ' coinciden con la búsqueda') : (uno ? ' registrado' : ' registrados') %><%= clientes.length === 500 ? ' (se muestran los 500 más recientes)' : '' %>.
+</p>
+
+<% if (!clientes.length) { -%>
+<div class="card card-body text-center text-body-secondary">
+  <%= q !== '' ? 'Ningún cliente coincide con la búsqueda.' : 'Todavía no hay clientes registrados.' %>
+</div>
+<% } else { -%>
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr><th scope="col">Nombre</th><th scope="col">Correo</th><th scope="col">Teléfono</th><th scope="col">Alta</th>
+        <th scope="col" class="num">Reservas</th><th scope="col" class="num">Pendientes</th><th scope="col" class="num">No presentadas</th><th scope="col">Última</th></tr>
+    </thead>
+    <tbody>
+<% for (const c of clientes) { -%>
+      <tr>
+        <td><%= c.name %></td>
+        <td><a href="mailto:<%= c.email %>"><%= c.email %></a></td>
+        <td class="text-nowrap"><%- c.phone ? `<a href="tel:${esc(c.phone)}">${esc(c.phone)}</a>` : '—' %></td>
+        <td class="text-nowrap"><%= Formato.fechaCorta(c.created_at) %></td>
+        <td class="num"><%= Number(c.reservations) %></td>
+        <td class="num"><%= Number(c.upcoming) %></td>
+        <td class="num<%= c.no_show > 0 ? ' text-danger-emphasis fw-semibold' : '' %>"><%= Number(c.no_show) %></td>
+        <td class="text-nowrap"><%= c.last_reservation ? Formato.fechaCorta(c.last_reservation) : '—' %></td>
+      </tr>
+<% } -%>
+    </tbody>
+  </table>
+</div>
+<% } -%>

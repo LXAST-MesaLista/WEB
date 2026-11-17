@@ -1,0 +1,82 @@
+<%# Personal. Variables: cuentas, yo (administrador actual), datos y errores. %>
+<h1 class="h3 mb-3">Personal</h1>
+
+<div class="table-responsive mb-4">
+  <table class="table align-middle">
+    <thead><tr><th scope="col">Nombre</th><th scope="col">Correo</th><th scope="col">Rol</th><th scope="col">Estado</th><th scope="col"><span class="visually-hidden">Acciones</span></th></tr></thead>
+    <tbody>
+<% for (const u of cuentas) { const id = Number(u.id); const soyYo = u.id === yo.id; -%>
+      <tr class="<%= u.active ? '' : 'text-body-secondary' %>">
+        <td><%= u.name %><%- soyYo ? ' <span class="badge text-bg-light border">tú</span>' : '' %></td>
+        <td><%= u.email %></td>
+        <td>
+          <form class="d-flex gap-1" method="post" action="/panel/admin/personal/<%= id %>">
+            <%- Csrf.campo() %>
+            <input type="hidden" name="cambio" value="rol">
+            <label class="visually-hidden" for="f-rol-<%= id %>">Rol de <%= u.name %></label>
+            <select class="form-select form-select-sm w-auto" id="f-rol-<%= id %>" name="role">
+              <option value="staff"<%- u.role === 'staff' ? ' selected' : '' %>>Personal</option>
+              <option value="admin"<%- u.role === 'admin' ? ' selected' : '' %>>Administración</option>
+            </select>
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Cambiar</button>
+          </form>
+        </td>
+        <td><%= u.active ? 'Activa' : 'Desactivada' %></td>
+        <td class="text-end text-nowrap">
+          <form class="d-inline" method="post" action="/panel/admin/personal/<%= id %>"
+                <%- u.active ? `data-confirmar="${esc(`¿Desactivar la cuenta de ${u.name}? No podrá iniciar sesión.`)}"` : '' %>>
+            <%- Csrf.campo() %>
+            <input type="hidden" name="cambio" value="activa">
+            <input type="hidden" name="active" value="<%= u.active ? '0' : '1' %>">
+            <button class="btn btn-sm <%= u.active ? 'btn-outline-danger' : 'btn-outline-secondary' %>" type="submit"><%= u.active ? 'Desactivar' : 'Activar' %></button>
+          </form>
+          <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#clave-<%= id %>"
+                  aria-expanded="false" aria-controls="clave-<%= id %>">Nueva contraseña</button>
+        </td>
+      </tr>
+      <tr class="collapse" id="clave-<%= id %>">
+        <td colspan="5">
+          <form class="d-flex flex-wrap gap-2 align-items-center" method="post" action="/panel/admin/personal/<%= id %>">
+            <%- Csrf.campo() %>
+            <input type="hidden" name="cambio" value="contrasena">
+            <label class="small" for="f-clave-<%= id %>">Contraseña nueva para <%= u.name %></label>
+            <input class="form-control form-control-sm w-auto" type="password" id="f-clave-<%= id %>" name="password"
+                   minlength="10" maxlength="128" autocomplete="new-password" required>
+            <button class="btn btn-sm btn-primary" type="submit">Guardar</button>
+            <span class="small text-body-secondary">Al menos 10 caracteres. Comunícasela por un medio seguro.</span>
+          </form>
+        </td>
+      </tr>
+<% } -%>
+    </tbody>
+  </table>
+</div>
+
+<% if (errores._ !== undefined) { -%>
+<div class="alert alert-danger" role="alert"><%= errores._ %></div>
+<% } -%>
+
+<form class="card card-body shadow-sm" method="post" action="/panel/admin/personal">
+  <%- Csrf.campo() %>
+  <h2 class="h5">Nueva cuenta</h2>
+  <div class="row g-3">
+    <div class="col-md-6 col-xl-3">
+      <%- campo('name', 'Nombre', datos.name, { required: true, minlength: 2, maxlength: 80, autocomplete: 'off' }, null, errores) %>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <%- campo('email', 'Correo', datos.email, { type: 'email', required: true, maxlength: 254, autocomplete: 'off' }, null, errores) %>
+    </div>
+    <div class="col-md-6 col-xl-2">
+      <label class="form-label" for="f-role">Rol</label>
+      <select class="form-select" id="f-role" name="role">
+        <option value="staff"<%- datos.role === 'staff' ? ' selected' : '' %>>Personal</option>
+        <option value="admin"<%- datos.role === 'admin' ? ' selected' : '' %>>Administración</option>
+      </select>
+    </div>
+    <div class="col-md-6 col-xl-4">
+      <%- campo('password', 'Contraseña inicial', '', { type: 'password', required: true, minlength: 10, maxlength: 128, autocomplete: 'new-password' },
+          'Al menos 10 caracteres. Evita contraseñas comunes.', errores) %>
+    </div>
+  </div>
+  <div><button class="btn btn-primary" type="submit">Crear cuenta</button></div>
+</form>

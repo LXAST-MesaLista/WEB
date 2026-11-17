@@ -1,0 +1,121 @@
+<%# Estadísticas. Variables: hoy, desde, hasta, s (datos o null) y error. %>
+<%
+const rango = (dias) => url('/panel/admin/estadisticas', { desde: Formato.sumarDias(hoy, -(dias - 1)), hasta: hoy });
+const cifra = (titulo, valor, nota) =>
+  `<div class="col"><div class="card h-100"><div class="card-body"><div class="small text-body-secondary">${esc(titulo)}</div>`
+  + `<div class="cifra">${esc(valor)}</div><div class="small text-body-secondary">${esc(nota)}</div></div></div></div>`;
+-%>
+<div class="d-flex flex-wrap align-items-end gap-2 mb-3">
+  <h1 class="h3 mb-0 me-auto">Estadísticas</h1>
+  <div class="btn-group" role="group" aria-label="Periodos rápidos">
+    <a class="btn btn-sm btn-outline-secondary" href="<%= rango(7) %>">7 días</a>
+    <a class="btn btn-sm btn-outline-secondary" href="<%= rango(30) %>">30 días</a>
+    <a class="btn btn-sm btn-outline-secondary" href="<%= url('/panel/admin/estadisticas', { desde: `${hoy.slice(0, 8)}01`, hasta: hoy }) %>">Este mes</a>
+  </div>
+  <form class="d-flex flex-wrap align-items-end gap-2" method="get" action="/panel/admin/estadisticas" data-auto-enviar>
+    <div>
+      <label class="form-label small mb-0" for="f-desde">Desde</label>
+      <input class="form-control form-control-sm" type="date" id="f-desde" name="desde" value="<%= desde %>" required>
+    </div>
+    <div>
+      <label class="form-label small mb-0" for="f-hasta">Hasta</label>
+      <input class="form-control form-control-sm" type="date" id="f-hasta" name="hasta" value="<%= hasta %>" required>
+    </div>
+    <button class="btn btn-sm btn-outline-primary sin-js" type="submit">Ver</button>
+  </form>
+</div>
+
+<% if (s === null) { -%>
+<div class="alert alert-danger"><%= error %></div>
+<% } else { -%>
+<p class="text-body-secondary">Del <%= Formato.fechaLarga(s.from) %> al <%= Formato.fechaLarga(s.to) %>.</p>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-4">
+  <%- cifra('Reservas', String(s.reservations), `Web o app ${s.by_source.app} · Local ${s.by_source.local} · Sin reserva ${s.by_source.walkin}`) %>
+  <%- cifra('Comensales', String(s.people), 'sentados o previstos') %>
+  <%- cifra('No presentadas', Admin.porcentaje(s.no_show_rate), `${s.by_status.no_show.reservations} de las reservas cuya hora ya llegó`) %>
+  <%- cifra('Canceladas', Admin.porcentaje(s.cancel_rate), `${s.by_status.cancelled.reservations} reservas`) %>
+</div>
+
+<section class="card card-body shadow-sm mb-4">
+  <h2 class="h5">Comensales por día</h2>
+  <%- fragmento('admin/_barras', {
+      descripcion: 'Comensales por día del periodo',
+      puntos: s.by_day.map((d) => ({ corta: String(Number(d.date.slice(8, 10))), larga: mayuscula(Formato.fechaLarga(d.date)),
+          valor: Number(d.people), texto: Formato.personas(d.people) })),
+  }) %>
+  <details class="mt-2">
+    <summary class="small">Ver datos</summary>
+    <div class="table-responsive">
+      <table class="table table-sm mt-2">
+        <thead><tr><th scope="col">Día</th><th scope="col" class="num">Reservas</th><th scope="col" class="num">Comensales</th></tr></thead>
+        <tbody>
+<% for (const d of s.by_day) { -%>
+          <tr><td><%= Formato.fechaCorta(d.date) %></td><td class="num"><%= Number(d.reservations) %></td><td class="num"><%= Number(d.people) %></td></tr>
+<% } -%>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="card card-body shadow-sm mb-4">
+  <h2 class="h5">Reservas por hora de inicio</h2>
+<% if (!s.by_hour.length) { -%>
+  <p class="text-body-secondary mb-0">Sin reservas en el periodo.</p>
+<% } else { -%>
+  <%- fragmento('admin/_barras', {
+      descripcion: 'Reservas por hora de inicio',
+      cada: 1,
+      puntos: s.by_hour.map((d) => ({ corta: d.time, larga: d.time, valor: Number(d.reservations),
+          texto: `${d.reservations}${d.reservations === 1 ? ' reserva' : ' reservas'}` })),
+  }) %>
+  <details class="mt-2">
+    <summary class="small">Ver datos</summary>
+    <table class="table table-sm mt-2">
+      <thead><tr><th scope="col">Hora</th><th scope="col" class="num">Reservas</th><th scope="col" class="num">Comensales</th></tr></thead>
+      <tbody>
+<% for (const d of s.by_hour) { -%>
+        <tr><td><%= d.time %></td><td class="num"><%= Number(d.reservations) %></td><td class="num"><%= Number(d.people) %></td></tr>
+<% } -%>
+      </tbody>
+    </table>
+  </details>
+<% } -%>
+</section>
+
+<section class="card card-body shadow-sm">
+  <h2 class="h5">Ocupación por servicio</h2>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr><th scope="col">Día</th><th scope="col">Servicio</th><th scope="col" class="num">Días</th><th scope="col" class="num">Comensales</th>
+          <th scope="col" class="num">Plazas</th><th scope="col">Ocupación</th></tr>
+      </thead>
+      <tbody>
+<% for (const o of s.by_service) { -%>
+        <tr>
+          <td><%= o.day %></td>
+          <td class="text-nowrap"><%= o.slot %></td>
+          <td class="num"><%= Number(o.services) %></td>
+          <td class="num"><%= Number(o.people) %></td>
+          <td class="num"><%= Number(o.capacity) %></td>
+          <td class="text-nowrap">
+            <svg class="medidor me-2" viewBox="0 0 100 8" aria-hidden="true">
+              <rect class="pista" width="100" height="8" rx="4"/>
+<% if (o.occupancy) { %>              <rect class="relleno" width="<%= Math.min(100, Number(o.occupancy)) %>" height="8" rx="4"/>
+<% } -%>
+            </svg>
+            <span class="num"><%= Admin.porcentaje(o.occupancy === null ? null : Number(o.occupancy)) %></span>
+          </td>
+        </tr>
+<% } -%>
+      </tbody>
+    </table>
+  </div>
+  <p class="small text-body-secondary mb-0">
+    Ocupación = comensales sentados o previstos ÷ (plazas de las mesas activas × rotaciones que caben en el servicio × días de ese servicio en el periodo).
+    % no presentadas = no presentadas ÷ reservas cuya hora ya llegó (completadas, en curso o no presentadas), sin clientes sin reserva.
+  </p>
+</section>
+<% } -%>
