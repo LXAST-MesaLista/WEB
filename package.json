@@ -1,0 +1,18 @@
+{
+  "name": "mesalista-web",
+  "version": "1.0.0",
+  "description": "MesaLista · web de reservas para clientes y panel del restaurante (Node.js, Bootstrap 5.3)",
+  "private": true,
+  "type": "module",
+  "main": "src/servidor.js",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "start": "node src/servidor.js"
+  },
+  "dependencies": {
+    "ejs": "3.1.10"
+  },
+  "license": "UNLICENSED"
+}

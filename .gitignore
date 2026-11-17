@@ -1,0 +1,11 @@
+# Dependencias (las instala npm ci)
+node_modules/
+
+# Configuración de cada instalación (dirección de la API, sesiones)
+config/config.json
+
+# Sesiones guardadas al probar en local
+sesiones/
+
+# Paquetes generados
+*.tar.gz

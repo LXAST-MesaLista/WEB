@@ -1,0 +1,17 @@
+{
+  "_comentario": "MesaLista · configuración de la web. Copiar como config.json (instalar.sh lo crea). config.json es de cada instalación y no se sube a Git.",
+
+  "listen": {
+    "host": "127.0.0.1",
+    "port": 8092
+  },
+
+  "api": "http://127.0.0.1:8091/api/v1",
+
+  "https": true,
+
+  "sesiones": {
+    "carpeta": "/var/lib/mesalista-web/sesiones",
+    "minutos": 120
+  }
+}
