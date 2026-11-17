@@ -1,0 +1,61 @@
+<%# Mis reservas. Variables: proximas, anteriores y solicitudes. %>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="h3 mb-0">Mis reservas</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-primary" href="/vincular">Añadir una reserva del local</a>
+    <a class="btn btn-primary" href="/reservar">Reservar mesa</a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <h2 class="h5">Próximas</h2>
+<% if (proximas.length) { -%>
+    <div class="list-group shadow-sm mb-4">
+<% for (const r of proximas) { -%>
+      <%- fragmento('cliente/_tarjeta-reserva', { r }) %>
+<% } -%>
+    </div>
+<% } else { -%>
+    <div class="card card-body text-center text-body-secondary mb-4">No tienes reservas pendientes.</div>
+<% } -%>
+
+<% if (anteriores.length) { -%>
+    <h2 class="h5">Anteriores</h2>
+    <div class="list-group">
+<% for (const r of anteriores) { -%>
+      <%- fragmento('cliente/_tarjeta-reserva', { r }) %>
+<% } -%>
+    </div>
+<% } -%>
+  </div>
+
+  <div class="col-lg-5">
+    <h2 class="h5">Solicitudes de grupo</h2>
+<% if (!solicitudes.length) { -%>
+    <div class="card card-body text-body-secondary">
+      No tienes solicitudes de grupo. <a href="/grupos">Pide mesa para un grupo</a>
+    </div>
+<% } -%>
+<% for (const g of solicitudes) { -%>
+    <div class="card card-body shadow-sm mb-3">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <strong><%= Formato.fechaCorta(g.date) %> · <%= g.time %> · <%= Formato.personas(g.party) %></strong>
+        <%- Formato.estadoSolicitud(g.status) %>
+      </div>
+<% if (g.reply) { -%>
+      <p class="mt-2 mb-0 small">Restaurante: «<%= g.reply %>»</p>
+<% } -%>
+<% if (g.status === 'accepted' && g.reservation_id) { -%>
+      <a class="mt-2" href="/reservas/<%= Number(g.reservation_id) %>">Ver la reserva ›</a>
+<% } -%>
+<% if (g.status === 'pending') { -%>
+      <form class="mt-2" method="post" action="/grupos/<%= Number(g.id) %>/cancelar" data-confirmar="¿Cancelar la solicitud de grupo?">
+        <%- Csrf.campo() %>
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Cancelar solicitud</button>
+      </form>
+<% } -%>
+    </div>
+<% } -%>
+  </div>
+</div>

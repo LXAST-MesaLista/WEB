@@ -1,0 +1,42 @@
+<%#
+  Opciones de menú, nota y consentimiento (RP-04), igual al reservar y al modificar.
+  Variables: cfg (con menu_options), extras (menu_options, note, consent),
+  errores y, si se quiere otro texto (panel), consentimiento.
+%>
+<% const err = locals.errores ?? {}; -%>
+<fieldset class="card card-body shadow-sm mb-3" data-extras>
+  <legend class="h5 float-none mb-1">Para preparar tu visita <span class="text-body-secondary fs-6">(opcional)</span></legend>
+  <p class="form-text mt-0 mb-3">Si alguien tiene alergias o necesitáis algo especial, díselo al restaurante.</p>
+
+<% if (cfg.menu_options.length) { -%>
+  <div class="mb-3">
+    <span class="form-label d-block">Opciones de menú</span>
+<% for (const o of cfg.menu_options) { -%>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" name="menu_options[]" id="f-menu-<%= Number(o.id) %>"
+             value="<%= Number(o.id) %>"<%- extras.menu_options.includes(Number(o.id)) ? ' checked' : '' %>>
+      <label class="form-check-label" for="f-menu-<%= Number(o.id) %>"><%= o.name %></label>
+    </div>
+<% } -%>
+  </div>
+<% } -%>
+
+  <div class="mb-3">
+    <label class="form-label" for="f-note">Nota para el restaurante</label>
+    <textarea class="form-control<%= err.note !== undefined ? ' is-invalid' : '' %>" id="f-note" name="note" rows="3" maxlength="200"
+              placeholder="Por ejemplo: venimos con un carrito de bebé" data-contador="f-note-cuenta"><%= extras.note ?? '' %></textarea>
+<% if (err.note !== undefined) { %><div class="invalid-feedback"><%= err.note %></div><% } -%>
+    <div class="form-text text-end" id="f-note-cuenta"><%= largo(extras.note ?? '') %>/200</div>
+  </div>
+
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" name="consent" value="1" id="f-consent"<%- extras.consent ? ' checked' : '' %>>
+    <label class="form-check-label small" for="f-consent">
+      <%= locals.consentimiento ?? 'Acepto que el restaurante use estas opciones y la nota, que pueden revelar datos de salud, '
+          + 'solo para preparar mi visita. Se borran 7 días después de la reserva.' %>
+    </label>
+  </div>
+  <div class="alert alert-warning small mt-3 mb-0 d-none" role="status" data-aviso-consentimiento>
+    Sin tu consentimiento, la reserva se guardará sin opciones de menú ni nota.
+  </div>
+</fieldset>

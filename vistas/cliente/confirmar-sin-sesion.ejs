@@ -1,0 +1,11 @@
+<%# Confirmar sin sesión. Variables: fecha, hora, personas, volver y next. %>
+<a class="d-inline-block mb-3" href="<%= volver %>">‹ Cambiar día u hora</a>
+<h1 class="h3 mb-3">Confirmar reserva</h1>
+<%- fragmento('cliente/_resumen', { fecha, hora, personas }) %>
+<div class="card card-body shadow-sm">
+  <p>Para reservar necesitas una cuenta. Solo te pedimos nombre, correo y teléfono.</p>
+  <div class="d-grid gap-2 d-sm-flex">
+    <a class="btn btn-primary flex-fill" href="<%= url('/entrar', { next }) %>">Iniciar sesión</a>
+    <a class="btn btn-outline-primary flex-fill" href="<%= url('/registro', { next }) %>">Crear cuenta</a>
+  </div>
+</div>

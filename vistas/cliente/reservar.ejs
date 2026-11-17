@@ -1,0 +1,70 @@
+<%#
+  Reservar: tira de días, comensales y horas libres.
+  Variables: cfg, hoy, maxDia, fecha, personas, comidas, cenas y error.
+%>
+<% const enlaceHora = (hora) => url('/reservar/confirmar', { fecha, personas, hora }); -%>
+<h1 class="h3 mb-3">Reservar mesa</h1>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <form class="card card-body shadow-sm" method="get" action="/reservar" data-auto-enviar>
+      <h2 class="h6 text-body-secondary text-uppercase mb-3">¿Qué día?</h2>
+      <div class="tira-dias d-flex gap-2 overflow-auto pb-2 mb-3" aria-label="Próximos días">
+<% for (const dia of Formato.dias(hoy, Math.min(13, Number(cfg.max_advance_days)))) { -%>
+        <a class="btn btn-sm <%= dia === fecha ? 'btn-primary' : 'btn-outline-primary' %> dia"
+           href="<%= url('/reservar', { fecha: dia, personas }) %>"
+           <%- dia === fecha ? 'aria-current="date"' : '' %>>
+          <span class="d-block small"><%= Formato.diaRelativo(dia, hoy) %></span>
+          <span class="d-block fw-semibold fs-5"><%= Number(dia.slice(8, 10)) %></span>
+        </a>
+<% } -%>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="f-fecha">Otra fecha</label>
+        <input class="form-control" type="date" id="f-fecha" name="fecha" value="<%= fecha %>"
+               min="<%= hoy %>" max="<%= maxDia %>" required>
+      </div>
+
+      <h2 class="h6 text-body-secondary text-uppercase mb-2 mt-2">¿Cuántos sois?</h2>
+      <label class="visually-hidden" for="f-personas">Personas</label>
+      <select class="form-select mb-2" id="f-personas" name="personas">
+<% for (let n = Number(cfg.min_party); n <= Number(cfg.max_party); n++) { -%>
+        <option value="<%= n %>"<%- n === personas ? ' selected' : '' %>><%= Formato.personas(n) %></option>
+<% } -%>
+      </select>
+      <p class="form-text mb-3">
+        ¿Sois más de <%= Number(cfg.max_party) %>?
+        <a href="/grupos">Envía una solicitud de grupo</a> (hasta <%= Number(cfg.max_group_party) %> personas).
+      </p>
+      <button class="btn btn-outline-primary sin-js" type="submit">Ver horas libres</button>
+    </form>
+  </div>
+
+  <div class="col-lg-7">
+    <section class="card card-body shadow-sm" aria-live="polite">
+      <h2 class="h5 mb-1">Horas libres</h2>
+      <p class="text-body-secondary mb-3"><%= mayuscula(Formato.fechaLarga(fecha)) %> · <%= Formato.personas(personas) %></p>
+
+<% if (error !== null) { -%>
+      <div class="alert alert-danger mb-0" role="alert"><%= error %></div>
+<% } else if (!comidas.length && !cenas.length) { -%>
+      <div class="text-center py-4">
+        <p class="mb-1">No quedan horas libres para <%= Formato.personas(personas) %> el <%= Formato.fechaLarga(fecha) %>.</p>
+        <p class="text-body-secondary mb-0">Prueba otro día o con otro número de comensales.</p>
+      </div>
+<% } else { -%>
+<% for (const [turno, lista] of [['Comidas', comidas], ['Cenas', cenas]]) { -%>
+<% if (lista.length) { -%>
+      <h3 class="h6 mt-2"><%= turno %></h3>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+<% for (const hora of lista) { -%>
+        <a class="btn btn-outline-primary hora" href="<%= enlaceHora(hora) %>"><%= hora %></a>
+<% } -%>
+      </div>
+<% } -%>
+<% } -%>
+      <p class="form-text mb-0">Elige una hora para confirmar la reserva. Cada mesa se reserva <%= Number(cfg.duration_min) %> minutos.</p>
+<% } -%>
+    </section>
+  </div>
+</div>

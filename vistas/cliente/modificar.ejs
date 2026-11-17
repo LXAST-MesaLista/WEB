@@ -1,0 +1,61 @@
+<%#
+  Modificar reserva. Variables: cfg, r, hoy, maxDia, fecha, personas,
+  hora, horas, errorHoras, extras y errores.
+%>
+<% const accion = url(`/reservas/${Number(r.id)}/modificar`, { fecha, personas }); -%>
+<a class="d-inline-block mb-3" href="/reservas/<%= Number(r.id) %>">‹ Volver a la reserva</a>
+<h1 class="h3 mb-3"><%= r.group ? 'Cambiar menú o nota' : 'Modificar reserva' %></h1>
+
+<% if (errores._ !== undefined) { -%>
+  <div class="alert alert-danger" role="alert"><%= errores._ %></div>
+<% } -%>
+
+<div class="row g-4">
+<% if (!r.group) { -%>
+  <div class="col-lg-5">
+    <form class="card card-body shadow-sm" method="get" action="/reservas/<%= Number(r.id) %>/modificar" data-auto-enviar>
+      <h2 class="h5">Día y comensales</h2>
+      <div class="mb-3">
+        <label class="form-label" for="f-fecha">Día</label>
+        <input class="form-control" type="date" id="f-fecha" name="fecha" value="<%= fecha %>" min="<%= hoy %>" max="<%= maxDia %>" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="f-personas">Comensales</label>
+        <select class="form-select" id="f-personas" name="personas">
+<% for (let n = Number(cfg.min_party); n <= Number(cfg.max_party); n++) { -%>
+          <option value="<%= n %>"<%- n === personas ? ' selected' : '' %>><%= Formato.personas(n) %></option>
+<% } -%>
+        </select>
+      </div>
+      <button class="btn btn-outline-primary sin-js" type="submit">Ver horas libres</button>
+      <p class="form-text mb-0">Ahora: <%= Formato.fechaCorta(r.date) %> a las <%= r.time %>, <%= Formato.personas(r.party) %>.</p>
+    </form>
+  </div>
+<% } -%>
+
+  <div class="<%= r.group ? 'col-lg-8' : 'col-lg-7' %>">
+    <form method="post" action="<%= accion %>">
+      <%- Csrf.campo() %>
+<% if (!r.group) { -%>
+      <fieldset class="card card-body shadow-sm mb-3">
+        <legend class="h5 float-none">Hora · <%= Formato.fechaCorta(fecha) %></legend>
+<% if (errorHoras !== null) { -%>
+        <div class="alert alert-danger mb-0" role="alert"><%= errorHoras %></div>
+<% } else if (!horas.length) { -%>
+        <p class="text-body-secondary mb-0">No quedan horas libres ese día para <%= Formato.personas(personas) %>.</p>
+<% } else { -%>
+        <div class="d-flex flex-wrap gap-2">
+<% horas.forEach((t, i) => { -%>
+          <input type="radio" class="btn-check" name="hora" id="f-hora-<%= i %>" value="<%= t %>" autocomplete="off"<%- t === hora ? ' checked' : '' %> required>
+          <label class="btn btn-outline-primary hora" for="f-hora-<%= i %>"><%= t %></label>
+<% }) -%>
+        </div>
+<% } -%>
+      </fieldset>
+<% } -%>
+
+      <%- fragmento('cliente/_extras', { cfg, extras, errores }) %>
+      <button class="btn btn-primary btn-lg w-100" type="submit">Guardar cambios</button>
+    </form>
+  </div>
+</div>

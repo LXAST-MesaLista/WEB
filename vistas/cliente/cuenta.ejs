@@ -1,0 +1,31 @@
+<%# Mi cuenta. Variables: u (usuario), datos (name, phone) y errores. %>
+<h1 class="h3 mb-3">Mi cuenta</h1>
+
+<% if (errores._ !== undefined) { -%>
+  <div class="alert alert-danger" role="alert"><%= errores._ %></div>
+<% } -%>
+
+<form class="card card-body shadow-sm mb-4" method="post" action="/cuenta">
+  <%- Csrf.campo() %>
+  <div class="mb-3">
+    <span class="form-label d-block">Correo electrónico</span>
+    <span class="text-body-secondary"><%= u.email %></span>
+  </div>
+  <%- campo('name', 'Nombre', datos.name, { required: true, minlength: 2, maxlength: 80, autocomplete: 'name' }, null, errores) %>
+  <%- campo('phone', 'Teléfono', datos.phone, { type: 'tel', required: true, maxlength: 25, autocomplete: 'tel' }, null, errores) %>
+  <button class="btn btn-primary" type="submit">Guardar</button>
+</form>
+
+<form class="mb-4" method="post" action="/salir">
+  <%- Csrf.campo() %>
+  <button class="btn btn-outline-secondary w-100" type="submit">Cerrar sesión</button>
+</form>
+
+<form class="card card-body border-danger-subtle" method="post" action="/cuenta/eliminar"
+      data-confirmar="¿Seguro que quieres eliminar tu cuenta? Tus reservas pendientes se cancelarán.">
+  <%- Csrf.campo() %>
+  <h2 class="h5 text-danger-emphasis">Eliminar cuenta</h2>
+  <p class="small">Se cancelarán tus reservas pendientes y se borrarán tu nombre, tu correo y tu teléfono. No se puede deshacer.</p>
+  <%- campo('password', 'Contraseña', '', { type: 'password', required: true, maxlength: 128, autocomplete: 'current-password' }) %>
+  <button class="btn btn-outline-danger" type="submit">Eliminar mi cuenta</button>
+</form>

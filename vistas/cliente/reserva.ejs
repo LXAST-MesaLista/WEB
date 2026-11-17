@@ -1,0 +1,100 @@
+<%# Detalle de una reserva. Variables: r, opciones (nombres) y pagada. %>
+<%
+const d = r.deposit;
+const plazo = mayuscula(Formato.fechaHora(r.deadline));
+const cancelable = r.modifiable || r.status === 'pending_payment';
+const devolucion = pagada ? ` Te devolveremos la señal de ${d.amount}.` : '';
+-%>
+<a class="d-inline-block mb-3" href="/reservas">‹ Mis reservas</a>
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0"><%= mayuscula(Formato.fechaLarga(r.date)) %></h1>
+  <%- Formato.estado(r.status) %>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6 col-lg-5 order-md-2">
+<% if (d !== null && r.status === 'pending_payment') { -%>
+<% if (r.payable) { -%>
+    <section class="card card-body border-warning shadow-sm mb-3 text-center">
+      <h2 class="h5">Paga la señal para confirmar</h2>
+      <p class="display-6 fw-semibold mb-1"><%= d.amount %></p>
+      <p class="small mb-3">
+        Tiempo para pagar:
+        <strong data-cuenta-atras="<%= Number(d.seconds_left) %>"><%= String(d.due).slice(11) %></strong>
+        (hasta las <%= String(d.due).slice(11) %>). Si no, las mesas se liberan.
+      </p>
+      <form method="post" action="/reservas/<%= Number(r.id) %>/pagar">
+        <%- Csrf.campo() %>
+        <button class="btn btn-primary btn-lg w-100" type="submit">Pagar con PayPal</button>
+      </form>
+      <p class="form-text mb-0 mt-2">La señal se devuelve si cancelas dentro del plazo o si cancela el restaurante.</p>
+    </section>
+<% } else { -%>
+    <div class="alert alert-warning" role="alert">El plazo para pagar la señal ha terminado. La reserva se liberará en unos segundos.</div>
+<% } -%>
+<% } else if (d !== null && d.payment !== null) { -%>
+    <div class="alert <%= d.payment === 'captured' ? 'alert-success' : 'alert-info' %>">
+      <%= {
+        captured: `Señal pagada: ${d.amount}.`,
+        refund_pending: `Señal de ${d.amount}: devolución en curso.`,
+        refunded: `Señal de ${d.amount} devuelta a tu cuenta de PayPal.`,
+      }[d.payment] ?? '' %>
+    </div>
+<% } -%>
+
+<% if (r.qr !== null) { -%>
+    <section class="card card-body shadow-sm text-center tarjeta-qr">
+      <div class="qr mx-auto mb-3" data-qr="<%= r.qr %>" role="img" aria-label="Código QR de la reserva">
+        <noscript><p class="small text-body-secondary">Activa JavaScript para ver el código QR.</p></noscript>
+      </div>
+      <p class="mb-1">Enseña este QR al llegar al restaurante.</p>
+      <p class="small text-body-secondary mb-0">Se acepta de <%= r.arrival_window[0] %> a <%= r.arrival_window[1] %>.</p>
+    </section>
+<% } -%>
+  </div>
+
+  <div class="col-md-6 col-lg-7 order-md-1">
+    <dl class="row mb-3 datos-reserva">
+      <dt class="col-5 col-sm-4 fw-normal text-body-secondary">Hora</dt>
+      <dd class="col-7 col-sm-8"><%= r.time %> – <%= r.end_time %></dd>
+      <dt class="col-5 col-sm-4 fw-normal text-body-secondary">Comensales</dt>
+      <dd class="col-7 col-sm-8"><%= Formato.personas(r.party) %></dd>
+      <dt class="col-5 col-sm-4 fw-normal text-body-secondary"><%= r.tables.length > 1 ? 'Mesas' : 'Mesa' %></dt>
+      <dd class="col-7 col-sm-8"><%= r.tables.join(' + ') %> · <%= r.zone %></dd>
+<% if (opciones.length) { -%>
+      <dt class="col-5 col-sm-4 fw-normal text-body-secondary">Opciones</dt>
+      <dd class="col-7 col-sm-8"><%= opciones.join(', ') %></dd>
+<% } -%>
+<% if (r.note !== null) { -%>
+      <dt class="col-5 col-sm-4 fw-normal text-body-secondary">Nota</dt>
+      <dd class="col-7 col-sm-8 texto-con-saltos"><%= r.note %></dd>
+<% } -%>
+    </dl>
+
+<% if (r.status === 'confirmed') { -%>
+    <p class="small text-body-secondary">
+<% if (!r.modifiable) { -%>
+      Ya ha pasado el plazo: no se puede modificar ni cancelar desde la web. Si lo necesitas, llama al restaurante.
+<% } else if (r.group) { -%>
+      Puedes cancelarla hasta el <%= plazo %><%= pagada ? ' y se te devuelve la señal' : '' %>.
+      Para cambiar la hora o los comensales de un grupo, llama al restaurante.
+<% } else { -%>
+      Puedes modificarla o cancelarla hasta el <%= plazo %>.
+<% } -%>
+    </p>
+<% } -%>
+
+    <div class="d-flex flex-wrap gap-2">
+<% if (r.modifiable) { -%>
+      <a class="btn btn-outline-primary" href="/reservas/<%= Number(r.id) %>/modificar"><%= r.group ? 'Cambiar menú o nota' : 'Modificar' %></a>
+<% } -%>
+<% if (cancelable) { -%>
+      <form method="post" action="/reservas/<%= Number(r.id) %>/cancelar"
+            data-confirmar="<%= `¿Cancelar la reserva del ${Formato.fechaLarga(r.date)} a las ${r.time}?${devolucion}` %>">
+        <%- Csrf.campo() %>
+        <button class="btn btn-outline-danger" type="submit">Cancelar reserva</button>
+      </form>
+<% } -%>
+    </div>
+  </div>
+</div>

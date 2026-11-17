@@ -1,0 +1,18 @@
+<%# Vincular una reserva del local. Variables: datos (code, phone) y errores. %>
+<h1 class="h3 mb-2">Añadir una reserva del local</h1>
+<p class="text-body-secondary">
+  Si reservaste en el restaurante o por teléfono, añade la reserva a tu cuenta para verla,
+  cambiarla o cancelarla desde aquí.
+</p>
+
+<% if (errores._ !== undefined) { -%>
+  <div class="alert alert-danger" role="alert"><%= errores._ %></div>
+<% } -%>
+
+<form class="card card-body shadow-sm" method="post" action="/vincular">
+  <%- Csrf.campo() %>
+  <%- campo('code', 'Código de reserva', datos.code, { required: true, maxlength: 14, autocomplete: 'off',
+      autocapitalize: 'characters', spellcheck: 'false', placeholder: 'ABCD234EFG' }, 'Está impreso en el ticket, debajo del QR.', errores) %>
+  <%- campo('phone', 'Teléfono con el que se hizo la reserva', datos.phone, { type: 'tel', required: true, maxlength: 25, autocomplete: 'tel' }, null, errores) %>
+  <button class="btn btn-primary w-100" type="submit">Añadir a mis reservas</button>
+</form>

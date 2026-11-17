@@ -1,0 +1,15 @@
+<%# Resumen de día, hora y comensales. Variables: fecha, hora y personas. %>
+<dl class="row row-cols-3 g-0 text-center border rounded-3 py-3 mb-3 resumen">
+  <div class="col">
+    <dt class="small text-body-secondary fw-normal">Día</dt>
+    <dd class="fw-semibold mb-0"><%= mayuscula(Formato.fechaLarga(fecha)) %></dd>
+  </div>
+  <div class="col border-start">
+    <dt class="small text-body-secondary fw-normal">Hora</dt>
+    <dd class="fw-semibold mb-0"><%= hora %></dd>
+  </div>
+  <div class="col border-start">
+    <dt class="small text-body-secondary fw-normal">Comensales</dt>
+    <dd class="fw-semibold mb-0"><%= Formato.personas(personas) %></dd>
+  </div>
+</dl>

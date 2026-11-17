@@ -1,0 +1,81 @@
+<%#
+  Solicitud de grupo. Variables: cfg, hoy, maxDia, fecha, minGrupo,
+  maxGrupo, horas, errorHoras, datos y errores.
+%>
+<h1 class="h3 mb-2">Solicitud de grupo</h1>
+<p class="text-body-secondary mb-3">
+  Para más de <%= Number(cfg.max_party) %> personas el restaurante prepara las mesas a mano.
+  Envía la solicitud y te responderá.
+</p>
+
+<% if (errores._ !== undefined) { -%>
+  <div class="alert alert-danger" role="alert"><%= errores._ %></div>
+<% } -%>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <form class="card card-body shadow-sm" method="get" action="/grupos" data-auto-enviar>
+      <label class="form-label" for="f-fecha">Día</label>
+      <input class="form-control mb-3" type="date" id="f-fecha" name="fecha" value="<%= fecha %>" min="<%= hoy %>" max="<%= maxDia %>" required>
+      <button class="btn btn-outline-primary sin-js" type="submit">Ver horas</button>
+      <p class="form-text mb-0"><%= mayuscula(Formato.fechaLarga(fecha)) %></p>
+    </form>
+  </div>
+
+  <div class="col-lg-8">
+    <form method="post" action="<%= url('/grupos', { fecha }) %>">
+      <%- Csrf.campo() %>
+      <div class="card card-body shadow-sm mb-3">
+        <div class="mb-3 col-sm-6">
+          <label class="form-label" for="f-personas">Comensales</label>
+          <input class="form-control<%= errores.personas !== undefined ? ' is-invalid' : '' %>" type="number" id="f-personas" name="personas"
+                 min="<%= minGrupo %>" max="<%= maxGrupo %>" value="<%= Number(datos.personas) %>" required>
+<% if (errores.personas !== undefined) { %><div class="invalid-feedback"><%= errores.personas %></div><% } -%>
+          <div class="form-text">De <%= minGrupo %> a <%= maxGrupo %> personas.</div>
+        </div>
+
+        <fieldset>
+          <legend class="form-label fs-6">Hora</legend>
+<% if (errorHoras !== null) { -%>
+          <div class="alert alert-danger mb-0" role="alert"><%= errorHoras %></div>
+<% } else if (!horas.length) { -%>
+          <p class="text-body-secondary mb-0">Ese día no se puede pedir ninguna hora.</p>
+<% } else { -%>
+          <div class="d-flex flex-wrap gap-2">
+<% horas.forEach((t, i) => { -%>
+            <input type="radio" class="btn-check" name="hora" id="f-hora-<%= i %>" value="<%= t %>" autocomplete="off"<%- t === datos.hora ? ' checked' : '' %> required>
+            <label class="btn btn-outline-primary hora" for="f-hora-<%= i %>"><%= t %></label>
+<% }) -%>
+          </div>
+<% } -%>
+<% if (errores.hora !== undefined) { %><div class="text-danger small mt-2"><%= errores.hora %></div><% } -%>
+        </fieldset>
+      </div>
+
+      <div class="card card-body shadow-sm mb-3">
+        <label class="form-label" for="f-note">Nota para el restaurante <span class="text-body-secondary">(opcional)</span></label>
+        <textarea class="form-control<%= errores.note !== undefined ? ' is-invalid' : '' %>" id="f-note" name="note" rows="3" maxlength="200"
+                  placeholder="Por ejemplo: cena de empresa, 2 personas celíacas" data-contador="f-note-cuenta"><%= datos.note %></textarea>
+<% if (errores.note !== undefined) { %><div class="invalid-feedback"><%= errores.note %></div><% } -%>
+        <div class="form-text text-end" id="f-note-cuenta"><%= largo(datos.note) %>/200</div>
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" name="consent" value="1" id="f-consent"<%- datos.consent ? ' checked' : '' %>>
+          <label class="form-check-label small" for="f-consent">
+            Acepto que el restaurante use esta nota, que puede revelar datos de salud, solo para preparar la visita.
+            Sin esta casilla la nota no se guarda.
+          </label>
+        </div>
+      </div>
+
+<% if (Number(cfg.deposit_per_person) > 0) { -%>
+      <div class="alert alert-info small">
+        Si el restaurante la acepta, tendrás <%= Number(cfg.deposit_hold_min) %> minutos para pagar una señal de
+        <%= Number(cfg.deposit_per_person) %> € por persona con PayPal.
+        Se devuelve si cancelas dentro del plazo o si cancela el restaurante.
+      </div>
+<% } -%>
+
+      <button class="btn btn-primary btn-lg w-100" type="submit">Enviar solicitud</button>
+    </form>
+  </div>
+</div>
