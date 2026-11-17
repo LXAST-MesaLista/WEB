@@ -1,0 +1,50 @@
+<%#
+  Menú de la zona de clientes. Variables: usuario (o null) y activa.
+%>
+<%
+const opcion = (id, href, texto) =>
+  `<li class="nav-item"><a class="nav-link${activa === id ? ' active" aria-current="page' : ''}" href="${esc(href)}">${esc(texto)}</a></li>`;
+-%>
+<nav class="navbar navbar-expand-md navbar-dark barra-marca" aria-label="Menú principal">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-semibold" href="/">
+      <img src="/assets/icono.svg" alt="" width="30" height="30" class="rounded-2"> MesaLista
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu-cliente"
+            aria-controls="menu-cliente" aria-expanded="false" aria-label="Abrir el menú">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu-cliente">
+      <ul class="navbar-nav me-auto">
+        <%- opcion('reservar', '/reservar', 'Reservar') %>
+<% if (usuario !== null) { -%>
+        <%- opcion('reservas', '/reservas', 'Mis reservas') %>
+        <%- opcion('grupos', '/grupos', 'Grupos') %>
+<% } -%>
+      </ul>
+      <ul class="navbar-nav">
+<% if (usuario === null) { -%>
+        <%- opcion('entrar', '/entrar', 'Entrar') %>
+        <%- opcion('registro', '/registro', 'Crear cuenta') %>
+<% } else { -%>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle<%= activa === 'cuenta' ? ' active' : '' %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <%= usuario.name %>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="/cuenta">Mi cuenta</a></li>
+            <li><a class="dropdown-item" href="/vincular">Añadir una reserva hecha en el local</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="/salir">
+                <%- Csrf.campo() %>
+                <button type="submit" class="dropdown-item">Cerrar sesión</button>
+              </form>
+            </li>
+          </ul>
+        </li>
+<% } -%>
+      </ul>
+    </div>
+  </div>
+</nav>

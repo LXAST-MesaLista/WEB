@@ -1,0 +1,62 @@
+<%#
+  Menú del panel del restaurante. Variables: usuario (personal, o null en
+  «Entrar»), activa y grupos (solicitudes pendientes).
+%>
+<%
+const opcion = (id, href, texto, extra = '') =>
+  `<li class="nav-item"><a class="nav-link${activa === id ? ' active" aria-current="page' : ''}" href="${esc(href)}">${esc(texto)}${extra}</a></li>`;
+const admin = usuario?.role === 'admin';
+-%>
+<nav class="navbar navbar-expand-xl navbar-dark barra-panel" aria-label="Menú del panel">
+  <div class="container-fluid px-lg-4">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-semibold" href="/panel">
+      <img src="/assets/icono.svg" alt="" width="30" height="30" class="rounded-2"> MesaLista <span class="fw-normal opacity-75">· Panel</span>
+    </a>
+<% if (usuario !== null) { -%>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu-panel"
+            aria-controls="menu-panel" aria-expanded="false" aria-label="Abrir el menú">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu-panel">
+      <ul class="navbar-nav me-auto">
+        <%- opcion('sala', '/panel', 'Sala') %>
+        <%- opcion('agenda', '/panel/agenda', 'Agenda') %>
+        <%- opcion('escanear', '/panel/escanear', 'Escanear QR') %>
+        <%- opcion('nueva', '/panel/nueva', 'Reserva en el local') %>
+        <%- opcion('sin-reserva', '/panel/sin-reserva', 'Sin reserva') %>
+        <%- opcion('grupos', '/panel/grupos', 'Grupos',
+            grupos > 0 ? ` <span class="badge rounded-pill text-bg-warning">${Number(grupos)}<span class="visually-hidden"> pendientes</span></span>` : '') %>
+        <%- opcion('bloqueos', '/panel/bloqueos', 'Bloqueos') %>
+<% if (admin) { -%>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle<%= activa.startsWith('admin-') ? ' active' : '' %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Administración</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/panel/admin/mesas">Mesas y plano</a></li>
+            <li><a class="dropdown-item" href="/panel/admin/clientes">Clientes</a></li>
+            <li><a class="dropdown-item" href="/panel/admin/estadisticas">Estadísticas</a></li>
+            <li><a class="dropdown-item" href="/panel/admin/horario">Horario</a></li>
+            <li><a class="dropdown-item" href="/panel/admin/parametros">Parámetros</a></li>
+            <li><a class="dropdown-item" href="/panel/admin/personal">Personal</a></li>
+          </ul>
+        </li>
+<% } -%>
+      </ul>
+      <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <%= usuario.name %> <span class="opacity-75 small">· <%= admin ? 'Administración' : 'Personal' %></span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <form method="post" action="/panel/salir">
+                <%- Csrf.campo() %>
+                <button type="submit" class="dropdown-item">Cerrar sesión</button>
+              </form>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+<% } -%>
+  </div>
+</nav>

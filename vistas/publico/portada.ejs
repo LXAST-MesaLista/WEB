@@ -1,0 +1,124 @@
+<%#
+  Portada. Variables: cfg (configuración pública o null), error, hoy,
+  maxDia, usuario, avisos (del restaurante) y proximas (reservas).
+%>
+<% if (avisos.length) { -%>
+  <section class="alert alert-warning" role="alert">
+    <h2 class="h6 alert-heading">Avisos del restaurante</h2>
+    <ul class="mb-2">
+<% for (const a of avisos) { -%>
+      <li>
+        <%= a.message %>
+<% if (a.reservation_id !== null) { -%>
+          <a class="alert-link" href="/reservas/<%= Number(a.reservation_id) %>">Ver la reserva</a>
+<% } -%>
+      </li>
+<% } -%>
+    </ul>
+    <form method="post" action="/avisos/leidos">
+      <%- Csrf.campo() %>
+      <button class="btn btn-sm btn-warning" type="submit">Entendido</button>
+    </form>
+  </section>
+<% } -%>
+
+<section class="portada-cabecera rounded-4 p-4 p-md-5 mb-4">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-6">
+<% if (usuario !== null) { -%>
+      <p class="text-primary-emphasis fw-semibold mb-2">Hola, <%= usuario.name %></p>
+<% } -%>
+      <h1 class="display-6 mb-3">Reserva tu mesa</h1>
+      <p class="lead text-body-secondary mb-0">
+        Elige el día y cuántos sois, y te enseñamos las horas libres.
+        Después puedes cambiar o cancelar la reserva desde «Mis reservas».
+      </p>
+    </div>
+    <div class="col-lg-6">
+<% if (cfg === null) { -%>
+      <div class="alert alert-warning mb-0" role="alert"><%= error %></div>
+<% } else { -%>
+      <form class="card card-body shadow-sm" method="get" action="/reservar">
+        <div class="row g-3">
+          <div class="col-sm-7">
+            <label class="form-label" for="f-fecha">Día</label>
+            <input class="form-control" type="date" id="f-fecha" name="fecha" required
+                   value="<%= hoy %>" min="<%= hoy %>" max="<%= maxDia %>">
+          </div>
+          <div class="col-sm-5">
+            <label class="form-label" for="f-personas">Personas</label>
+            <select class="form-select" id="f-personas" name="personas">
+<% for (let n = Number(cfg.min_party); n <= Number(cfg.max_party); n++) { -%>
+              <option value="<%= n %>"<%- n === 2 ? ' selected' : '' %>><%= n %></option>
+<% } -%>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-lg w-100 mt-3" type="submit">Ver horas libres</button>
+        <p class="form-text mb-0 mt-2">
+          Se puede reservar con hasta <%= Number(cfg.max_advance_days) %> días de antelación.
+        </p>
+      </form>
+<% } -%>
+    </div>
+  </div>
+</section>
+
+<% if (usuario !== null) { -%>
+  <section class="mb-4">
+    <div class="d-flex justify-content-between align-items-baseline mb-2">
+      <h2 class="h5 mb-0">Próximas reservas</h2>
+      <a href="/reservas">Ver todas</a>
+    </div>
+<% if (proximas.length) { -%>
+    <div class="list-group shadow-sm">
+<% for (const r of proximas.slice(0, 3)) { -%>
+      <%- fragmento('cliente/_tarjeta-reserva', { r }) %>
+<% } -%>
+    </div>
+<% } else { -%>
+    <div class="card card-body text-body-secondary">No tienes ninguna reserva pendiente.</div>
+<% } -%>
+  </section>
+<% } -%>
+
+<div class="row g-3 row-cols-1 row-cols-md-3">
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <span class="icono-redondo mb-3" aria-hidden="true">+</span>
+        <h2 class="h5">¿Sois más de <%= Number(cfg?.max_party ?? 8) %>?</h2>
+        <p class="text-body-secondary">
+          Para grupos grandes envía una solicitud y el restaurante te confirma la mesa.
+        </p>
+        <a class="stretched-link" href="/grupos">Solicitar mesa para un grupo</a>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <span class="icono-redondo mb-3" aria-hidden="true">#</span>
+        <h2 class="h5">¿Reservaste por teléfono?</h2>
+        <p class="text-body-secondary">
+          Añade a tu cuenta una reserva hecha en el local con su código y tu teléfono.
+        </p>
+        <a class="stretched-link" href="/vincular">Añadir una reserva</a>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <span class="icono-redondo mb-3" aria-hidden="true">✓</span>
+        <h2 class="h5">Tus reservas</h2>
+        <p class="text-body-secondary">
+          Consulta, cambia o cancela tus reservas y enseña su código QR al llegar.
+        </p>
+        <a class="stretched-link" href="<%= usuario !== null ? '/reservas' : '/entrar?next=%2Freservas' %>">
+          <%= usuario !== null ? 'Ver mis reservas' : 'Entrar para verlas' %>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

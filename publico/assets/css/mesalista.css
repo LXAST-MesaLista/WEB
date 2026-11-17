@@ -1,0 +1,194 @@
+/*
+ * MesaLista · estilos propios, encima de Bootstrap 5.3.
+ *
+ * Para cambiar el diseño: los colores de la marca están aquí arriba, en
+ * variables. Bootstrap usa sus propias variables (--bs-…); se redefinen las
+ * que llevan el color principal, en claro y en oscuro.
+ */
+
+:root,
+[data-bs-theme="light"] {
+  --ml-marca: #a8432a;
+  --ml-marca-rgb: 168, 67, 42;
+  --ml-marca-hover: #8f3923;
+  --ml-marca-activa: #86351f;
+  --ml-marca-suave: #f6e7e2;
+  --ml-panel: #2b2f36;
+
+  --bs-primary: var(--ml-marca);
+  --bs-primary-rgb: var(--ml-marca-rgb);
+  --bs-primary-text-emphasis: #5c2416;
+  --bs-primary-bg-subtle: var(--ml-marca-suave);
+  --bs-primary-border-subtle: #e2bdb2;
+  --bs-link-color: #a8432a;
+  --bs-link-color-rgb: 168, 67, 42;
+  --bs-link-hover-color: #86351f;
+  --bs-link-hover-color-rgb: 134, 53, 31;
+  --bs-focus-ring-color: rgba(168, 67, 42, .25);
+  --bs-body-bg: #fbf9f7;
+  --bs-body-bg-rgb: 251, 249, 247;
+}
+
+[data-bs-theme="dark"] {
+  --ml-marca-suave: #3a1d16;
+  --ml-panel: #16181c;
+
+  --bs-primary-text-emphasis: #f0b4a4;
+  --bs-primary-bg-subtle: var(--ml-marca-suave);
+  --bs-primary-border-subtle: #6b2c1d;
+  --bs-link-color: #e8917b;
+  --bs-link-color-rgb: 232, 145, 123;
+  --bs-link-hover-color: #f2b3a3;
+  --bs-link-hover-color-rgb: 242, 179, 163;
+  --bs-body-bg: #1b1d21;
+  --bs-body-bg-rgb: 27, 29, 33;
+}
+
+/* Botones y controles con el color de la marca */
+.btn-primary {
+  --bs-btn-bg: var(--ml-marca);
+  --bs-btn-border-color: var(--ml-marca);
+  --bs-btn-hover-bg: var(--ml-marca-hover);
+  --bs-btn-hover-border-color: var(--ml-marca-hover);
+  --bs-btn-active-bg: var(--ml-marca-activa);
+  --bs-btn-active-border-color: var(--ml-marca-activa);
+  --bs-btn-disabled-bg: var(--ml-marca);
+  --bs-btn-disabled-border-color: var(--ml-marca);
+  --bs-btn-focus-shadow-rgb: 181, 95, 74;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--bs-link-color);
+  --bs-btn-border-color: var(--ml-marca);
+  --bs-btn-hover-bg: var(--ml-marca);
+  --bs-btn-hover-border-color: var(--ml-marca);
+  --bs-btn-active-bg: var(--ml-marca-activa);
+  --bs-btn-active-border-color: var(--ml-marca-activa);
+  --bs-btn-disabled-color: var(--bs-link-color);
+  --bs-btn-disabled-border-color: var(--ml-marca);
+  --bs-btn-focus-shadow-rgb: 181, 95, 74;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: #d39a8b;
+  box-shadow: 0 0 0 .25rem rgba(var(--ml-marca-rgb), .25);
+}
+
+.form-check-input:checked {
+  background-color: var(--ml-marca);
+  border-color: var(--ml-marca);
+}
+
+.nav-pills {
+  --bs-nav-pills-link-active-bg: var(--ml-marca);
+}
+
+.page-link {
+  --bs-pagination-active-bg: var(--ml-marca);
+  --bs-pagination-active-border-color: var(--ml-marca);
+}
+
+/* Barras superiores (texto blanco; los menús desplegables siguen el tema de la página) */
+.barra-marca {
+  background-color: var(--ml-marca);
+}
+
+.barra-panel {
+  background-color: var(--ml-panel);
+}
+
+.barra-marca,
+.barra-panel {
+  --bs-navbar-color: rgba(255, 255, 255, .88);
+  --bs-navbar-hover-color: #fff;
+  --bs-navbar-active-color: #fff;
+  --bs-navbar-toggler-border-color: rgba(255, 255, 255, .4);
+}
+
+.navbar .nav-link.active {
+  font-weight: 600;
+}
+
+/* Anchos de página */
+.ancho-estrecho {
+  max-width: 30rem;
+}
+
+/* Portada */
+.portada-cabecera {
+  background:
+    linear-gradient(135deg, rgba(var(--ml-marca-rgb), .14), rgba(var(--ml-marca-rgb), .02));
+  border: 1px solid var(--bs-primary-border-subtle);
+}
+
+.portada-cabecera .display-6 {
+  font-weight: 700;
+}
+
+.icono-redondo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
+  font-weight: 700;
+}
+
+/* Con JavaScript, los formularios de día y comensales se envían solos */
+.js .sin-js {
+  display: none;
+}
+
+/* Reservar: tira de días y horas */
+.tira-dias .dia {
+  min-width: 3.6rem;
+  flex: 0 0 auto;
+  line-height: 1.15;
+}
+
+.btn.hora {
+  min-width: 4.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Listas de reservas */
+.fecha-tarjeta {
+  min-width: 4.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.resumen dd {
+  font-size: 1.05rem;
+}
+
+.texto-con-saltos {
+  white-space: pre-line;
+}
+
+/* QR de la reserva: siempre en blanco y negro, también en el tema oscuro */
+.qr {
+  width: min(16rem, 100%);
+}
+
+.qr svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: .5rem;
+}
+
+/* Botón ocupado mientras se envía el formulario */
+.btn .spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border-width: .15em;
+}
+
+.pie {
+  background-color: var(--bs-tertiary-bg);
+}

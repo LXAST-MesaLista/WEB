@@ -1,0 +1,14 @@
+<%# Contraseña nueva. Variables: errores. %>
+<h1 class="h3 mb-3">Elige una contraseña nueva</h1>
+
+<% if (errores._ !== undefined) { -%>
+  <div class="alert alert-danger" role="alert"><%= errores._ %></div>
+<% } -%>
+
+<form class="card card-body shadow-sm" method="post" action="/restablecer">
+  <%- Csrf.campo() %>
+  <%- campo('password', 'Contraseña nueva', '', { type: 'password', required: true, minlength: 10, maxlength: 128, autocomplete: 'new-password', autofocus: true },
+      'Al menos 10 caracteres. Evita contraseñas comunes.', errores) %>
+  <%- campo('password2', 'Repite la contraseña', '', { type: 'password', required: true, minlength: 10, maxlength: 128, autocomplete: 'new-password', 'data-igual-a': 'f-password' }, null, errores) %>
+  <button class="btn btn-primary btn-lg w-100" type="submit">Cambiar contraseña</button>
+</form>

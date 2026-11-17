@@ -1,0 +1,317 @@
+/*
+ * MesaLista · estilos del panel del restaurante (encima de Bootstrap y de
+ * mesalista.css). Los colores de estado de las mesas están aquí arriba.
+ */
+
+:root,
+[data-bs-theme="light"] {
+  --ml-libre: #2f8f5b;
+  --ml-libre-fondo: #e7f4ec;
+  --ml-proxima: #c98a09;
+  --ml-proxima-fondo: #fdf3d9;
+  --ml-ocupada: #a8432a;
+  --ml-ocupada-fondo: #f6e2dc;
+  --ml-bloqueada: #6b5ca5;
+  --ml-bloqueada-fondo: #ece8f6;
+  --ml-fuera: #8a8f98;
+  --ml-fuera-fondo: #eceef1;
+  --ml-suelo: #f4efe9;
+  --ml-silla: #cfc6bb;
+}
+
+[data-bs-theme="dark"] {
+  --ml-libre: #5cc48b;
+  --ml-libre-fondo: #173326;
+  --ml-proxima: #e8b23d;
+  --ml-proxima-fondo: #3a2d0e;
+  --ml-ocupada: #e8917b;
+  --ml-ocupada-fondo: #3c1f18;
+  --ml-bloqueada: #a99ae0;
+  --ml-bloqueada-fondo: #2a2540;
+  --ml-fuera: #9aa0a8;
+  --ml-fuera-fondo: #2a2d33;
+  --ml-suelo: #23262b;
+  --ml-silla: #4a4e55;
+}
+
+.estado-free { --ml-estado: var(--ml-libre); --ml-estado-fondo: var(--ml-libre-fondo); }
+.estado-soon { --ml-estado: var(--ml-proxima); --ml-estado-fondo: var(--ml-proxima-fondo); }
+.estado-occupied { --ml-estado: var(--ml-ocupada); --ml-estado-fondo: var(--ml-ocupada-fondo); }
+.estado-blocked { --ml-estado: var(--ml-bloqueada); --ml-estado-fondo: var(--ml-bloqueada-fondo); }
+.estado-out_of_service { --ml-estado: var(--ml-fuera); --ml-estado-fondo: var(--ml-fuera-fondo); }
+
+/* Leyenda */
+.punto {
+  display: inline-block;
+  width: .75rem;
+  height: .75rem;
+  border-radius: 50%;
+  background-color: var(--ml-estado);
+  vertical-align: -1px;
+}
+
+/* Fichas de mesa */
+.ficha-mesa {
+  border-left: .35rem solid var(--ml-estado);
+}
+
+.ficha-mesa .texto-estado {
+  color: var(--ml-estado);
+}
+
+.campo-numero {
+  width: 5rem;
+}
+
+/* Plano de la sala */
+.plano-sala {
+  background-color: var(--bs-body-bg);
+  overflow: hidden;
+}
+
+.plano-sala svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.plano-sala .suelo {
+  fill: var(--ml-suelo);
+}
+
+.plano-sala .silla {
+  fill: var(--ml-silla);
+}
+
+.plano-sala .forma {
+  fill: var(--ml-estado-fondo);
+  stroke: var(--ml-estado);
+  stroke-width: 3;
+}
+
+.plano-sala .codigo,
+.plano-sala .detalle {
+  text-anchor: middle;
+  fill: var(--bs-body-color);
+}
+
+.plano-sala .codigo {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.plano-sala .detalle {
+  font-size: 14px;
+}
+
+.plano-sala .union {
+  fill: none;
+  stroke: var(--ml-ocupada);
+  stroke-width: 4;
+  stroke-dasharray: 10 8;
+}
+
+.plano-sala a:hover .forma,
+.plano-sala a:focus .forma {
+  stroke-width: 5;
+}
+
+.plano-sala a:focus {
+  outline: none;
+}
+
+.plano-sala a:focus-visible .forma,
+.plano-sala .elegida .forma {
+  stroke: var(--bs-body-color);
+  stroke-width: 5;
+}
+
+/* Editor del plano (administración) */
+.plano-sala .mesa-plano[data-forma="round"] .variante-rect,
+.plano-sala .mesa-plano[data-forma="rect"] .variante-round {
+  display: none;
+}
+
+.plano-sala.editor .mesa-plano {
+  cursor: grab;
+  touch-action: none;
+}
+
+.plano-sala.editor .mesa-plano.arrastrando {
+  cursor: grabbing;
+}
+
+.plano-sala.editor .mesa-plano:focus {
+  outline: none;
+}
+
+.plano-sala.editor .mesa-plano:focus-visible .forma {
+  stroke: var(--bs-body-color);
+  stroke-width: 5;
+}
+
+/* Estadísticas: cifras, barras y medidores */
+.cifra {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.grafico svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.grafico .rejilla {
+  stroke: var(--bs-border-color);
+  stroke-width: 1;
+}
+
+.grafico .base {
+  stroke: var(--bs-secondary-color);
+  stroke-width: 1;
+}
+
+.grafico .eje {
+  fill: var(--bs-secondary-color);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.grafico .barra {
+  fill: var(--ml-ocupada);
+}
+
+.grafico .zona-barra {
+  fill: transparent;
+}
+
+.grafico .zona-barra:hover + .barra,
+.grafico .barra:hover {
+  opacity: .8;
+}
+
+.medidor {
+  width: 7rem;
+  height: .5rem;
+  vertical-align: middle;
+}
+
+.medidor .pista {
+  fill: var(--bs-secondary-bg);
+}
+
+.medidor .relleno {
+  fill: var(--ml-ocupada);
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Agenda: filas con nota destacadas (RF-27) */
+.fila-nota > td:first-child {
+  box-shadow: inset .3rem 0 0 var(--bs-info);
+}
+
+.nota-agenda {
+  white-space: pre-line;
+  max-width: 22rem;
+}
+
+.acciones-agenda form {
+  display: inline;
+}
+
+/* Lector de QR */
+.lector {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background-color: #111;
+  border-radius: .75rem;
+  overflow: hidden;
+}
+
+.lector video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lector .marco {
+  position: absolute;
+  inset: 18%;
+  border: 3px solid rgba(255, 255, 255, .8);
+  border-radius: 1rem;
+  pointer-events: none;
+}
+
+/* Ticket de las reservas del local (RF-29): en pantalla y al imprimir */
+.ticket {
+  max-width: 20rem;
+  margin: 0 auto;
+  padding: 1.25rem;
+  text-align: center;
+  background: #fff;
+  color: #000;
+  border: 1px dashed #999;
+  border-radius: .5rem;
+}
+
+.ticket .qr {
+  width: 12rem;
+  margin: .75rem auto;
+}
+
+.ticket-codigo {
+  font-family: var(--bs-font-monospace);
+  font-size: 1.5rem;
+  letter-spacing: .15em;
+  font-weight: 700;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .ticket,
+  .ticket * {
+    visibility: visible;
+  }
+
+  .ticket {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    border: 0;
+  }
+}
+
+/* Selección de mesas (aceptar grupos, sin reserva, unir mesas) */
+.opcion-mesa {
+  min-width: 11rem;
+}
+
+.opcion-mesa .form-check-input:disabled + .form-check-label {
+  text-decoration: line-through;
+}
+
+.pin {
+  max-width: 10rem;
+  letter-spacing: .3em;
+}
+
+/* Administración: tabla de mesas */
+.campo-zona {
+  min-width: 8rem;
+}
+
+.fila-nueva > td {
+  background-color: var(--bs-tertiary-bg);
+  border-top: 2px solid var(--bs-border-color);
+}

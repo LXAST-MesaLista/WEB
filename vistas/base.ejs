@@ -1,0 +1,77 @@
+<%#
+  Diseño común de todas las páginas: cabecera, menú, avisos y pie.
+  Variables: titulo, contenido (HTML de la página), zona, ancho, avisos,
+  alertas, usuario, activa (opción del menú marcada), scripts, recargar y
+  grupos (solicitudes de grupo pendientes, en el panel).
+%>
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= titulo === 'MesaLista' ? titulo : `${titulo} · MesaLista` %></title>
+  <meta name="csrf" content="<%= Csrf.token() %>">
+  <link rel="icon" href="/assets/icono.svg" type="image/svg+xml">
+  <script src="<%= recurso('/assets/js/tema.js') %>"></script>
+  <link rel="stylesheet" href="/assets/bootstrap/bootstrap-5.3.8.min.css">
+  <link rel="stylesheet" href="<%= recurso('/assets/css/mesalista.css') %>">
+<% if (zona === 'panel') { -%>
+  <link rel="stylesheet" href="<%= recurso('/assets/css/panel.css') %>">
+<% } -%>
+</head>
+<body class="d-flex flex-column min-vh-100 zona-<%= zona %>"<%- zona === 'panel' && usuario !== null ? ' data-panel' : '' %><%- recargar ? ' data-recargar' : '' %>>
+  <a class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-light" href="#contenido">Saltar al contenido</a>
+
+  <%- fragmento(zona === 'cliente' ? 'menu-cliente' : 'menu-panel', { usuario, activa, grupos }) %>
+
+  <main id="contenido" class="flex-grow-1 py-4">
+    <div class="container<%= ancho === 'ancho' ? '-fluid px-lg-4' : '' %>">
+      <div class="<%= ancho === 'estrecho' ? 'mx-auto ancho-estrecho' : '' %>">
+<% for (const [tipo, texto] of avisos) { -%>
+        <div class="alert alert-<%= tipo %> alert-dismissible fade show" role="<%= tipo === 'danger' ? 'alert' : 'status' %>">
+          <%= texto %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+<% } -%>
+        <%- contenido %>
+      </div>
+    </div>
+  </main>
+
+<% alertas.forEach(([, texto], i) => { -%>
+  <div class="modal fade" id="alerta-<%= i %>" tabindex="-1" role="alertdialog" aria-modal="true" aria-labelledby="alerta-<%= i %>-titulo" data-abrir-al-cargar>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-danger">
+        <div class="modal-header">
+          <h2 class="modal-title h5 text-danger-emphasis" id="alerta-<%= i %>-titulo">Atención</h2>
+        </div>
+        <div class="modal-body"><p class="mb-0"><%= texto %></p></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% }) -%>
+
+  <footer class="pie border-top py-3 mt-auto">
+    <div class="container d-flex flex-wrap justify-content-between gap-2 small text-body-secondary">
+      <span>MesaLista · Reserva de mesas</span>
+<% if (zona === 'cliente') { -%>
+      <a class="link-secondary" href="/panel/entrar">Acceso del personal</a>
+<% } else { -%>
+      <a class="link-secondary" href="/">Web de reservas</a>
+<% } -%>
+    </div>
+  </footer>
+
+  <script src="/assets/bootstrap/bootstrap-5.3.8.bundle.min.js"></script>
+<% for (const script of scripts) { -%>
+  <script src="<%= script %>"></script>
+<% } -%>
+  <script src="<%= recurso('/assets/js/mesalista.js') %>"></script>
+<% if (zona === 'panel') { -%>
+  <script src="<%= recurso('/assets/js/panel.js') %>"></script>
+<% } -%>
+</body>
+</html>
