@@ -40,7 +40,7 @@ export default async function () {
         note: datos.note === '' ? null : datos.note, consent: datos.consent,
       });
       if (r.ok()) {
-        Sesion.aviso('success', 'Solicitud enviada. El restaurante te responderá por correo y la verás en «Mis reservas».');
+        Sesion.aviso('success', 'Solicitud enviada. El restaurante te responderá en la app y la verás en «Mis reservas».');
         Vista.redirigir('/reservas');
       }
       errores = Vista.errores(r, { party: 'personas', time: 'hora' });

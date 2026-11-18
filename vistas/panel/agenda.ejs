@@ -64,7 +64,7 @@ const pagada = (r) => r.deposit?.payment === 'captured';
 <% for (const r of reservas) {
      const opciones = Panel.opciones(r.menu_options);
      const senal = Panel.senal(r);
-     const quien = r.linked ? 'El cliente recibirá un aviso y un correo.' : (r.source === 'local' ? 'Reserva sin cuenta: avisa al cliente por teléfono.' : '');
+     const quien = r.linked ? 'El cliente recibirá un aviso en la app.' : (r.source === 'local' ? 'Reserva sin cuenta: avisa al cliente por teléfono.' : '');
 -%>
       <tr class="<%= r.note !== null ? 'fila-nota' : '' %>">
         <td class="text-nowrap"><strong><%= r.time %></strong><div class="small text-body-secondary">– <%= r.end_time %></div></td>

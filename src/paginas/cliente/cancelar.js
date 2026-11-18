@@ -14,7 +14,7 @@ export default async function (p) {
   }
   const r = await Api.cliente('POST', `/reservations/${id}/cancel`, {});
   if (r.ok()) {
-    Sesion.aviso('success', 'Reserva cancelada. Te hemos enviado un correo.');
+    Sesion.aviso('success', 'Reserva cancelada.');
   } else {
     Sesion.aviso('danger', r.message());
   }

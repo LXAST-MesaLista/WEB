@@ -1,4 +1,10 @@
-<%# Mis reservas. Variables: proximas, anteriores y solicitudes. %>
+<%#
+  Mis reservas. Variables (src/paginas/cliente/reservas.js, repartir):
+  proximas (reservas), solicitudes (las que esperan al local o el pago; las
+  aceptadas llevan su reserva en g.reserva), noAceptadas (rechazadas por el
+  local) y anteriores ({ r } reserva terminada o { g } solicitud caducada o
+  cancelada).
+%>
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
   <h1 class="h3 mb-0">Mis reservas</h1>
   <div class="d-flex gap-2">
@@ -23,8 +29,24 @@
 <% if (anteriores.length) { -%>
     <h2 class="h5">Anteriores</h2>
     <div class="list-group">
-<% for (const r of anteriores) { -%>
+<% for (const { r, g } of anteriores) { -%>
+<% if (r) { -%>
       <%- fragmento('cliente/_tarjeta-reserva', { r }) %>
+<% } else { -%>
+      <div class="list-group-item d-flex align-items-center gap-3 py-3">
+        <div class="text-center fecha-tarjeta">
+          <div class="small text-body-secondary"><%= Formato.fechaCorta(g.date) %></div>
+          <div class="fs-5 fw-semibold"><%= g.time %></div>
+        </div>
+        <div class="flex-grow-1">
+          <div><%= Formato.personas(g.party) %> · solicitud de grupo</div>
+          <%- Formato.estadoSolicitud(g.status) %>
+<% if (g.reply) { -%>
+          <div class="small mt-1">Restaurante: «<%= g.reply %>»</div>
+<% } -%>
+        </div>
+      </div>
+<% } -%>
 <% } -%>
     </div>
 <% } -%>
@@ -34,20 +56,23 @@
     <h2 class="h5">Solicitudes de grupo</h2>
 <% if (!solicitudes.length) { -%>
     <div class="card card-body text-body-secondary">
-      No tienes solicitudes de grupo. <a href="/grupos">Pide mesa para un grupo</a>
+      No tienes solicitudes de grupo pendientes. <a href="/grupos">Pide mesa para un grupo</a>
     </div>
 <% } -%>
-<% for (const g of solicitudes) { -%>
+<% for (const g of solicitudes) { const sinPagar = g.status === 'accepted'; -%>
     <div class="card card-body shadow-sm mb-3">
       <div class="d-flex justify-content-between align-items-start gap-2">
         <strong><%= Formato.fechaCorta(g.date) %> · <%= g.time %> · <%= Formato.personas(g.party) %></strong>
-        <%- Formato.estadoSolicitud(g.status) %>
+        <%- sinPagar ? Formato.estado('pending_payment') : Formato.estadoSolicitud(g.status) %>
       </div>
+<% if (sinPagar) { -%>
+      <p class="mt-2 mb-0 small">El restaurante ha aceptado tu grupo: paga la señal para confirmar la reserva.</p>
+<% } -%>
 <% if (g.reply) { -%>
       <p class="mt-2 mb-0 small">Restaurante: «<%= g.reply %>»</p>
 <% } -%>
-<% if (g.status === 'accepted' && g.reservation_id) { -%>
-      <a class="mt-2" href="/reservas/<%= Number(g.reservation_id) %>">Ver la reserva ›</a>
+<% if (sinPagar) { -%>
+      <a class="btn btn-sm btn-primary mt-2 align-self-start" href="/reservas/<%= Number(g.reservation_id) %>">Pagar la señal ›</a>
 <% } -%>
 <% if (g.status === 'pending') { -%>
       <form class="mt-2" method="post" action="/grupos/<%= Number(g.id) %>/cancelar" data-confirmar="¿Cancelar la solicitud de grupo?">
@@ -56,6 +81,21 @@
       </form>
 <% } -%>
     </div>
+<% } -%>
+
+<% if (noAceptadas.length) { -%>
+    <h2 class="h5 mt-4">No aceptadas</h2>
+<% for (const g of noAceptadas) { -%>
+    <div class="card card-body mb-3">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <strong><%= Formato.fechaCorta(g.date) %> · <%= g.time %> · <%= Formato.personas(g.party) %></strong>
+        <%- Formato.estadoSolicitud(g.status) %>
+      </div>
+<% if (g.reply) { -%>
+      <p class="mt-2 mb-0 small">Restaurante: «<%= g.reply %>»</p>
+<% } -%>
+    </div>
+<% } -%>
 <% } -%>
   </div>
 </div>

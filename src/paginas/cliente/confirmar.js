@@ -46,7 +46,7 @@ export default async function () {
     if (r.ok()) {
       Sesion.aviso('success', r.body.replayed
         ? 'Tu reserva ya estaba registrada.'
-        : '¡Reserva confirmada! Te hemos enviado un correo con los detalles.');
+        : '¡Reserva confirmada! Tienes el QR en «Mis reservas».');
       Vista.redirigir(`/reservas/${Number(r.body.reservation.id)}`);
     }
     if (r.code() === 'conflict') {

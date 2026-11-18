@@ -12,5 +12,5 @@ export default async function (p) {
     Vista.redirigir('/panel/grupos');
   }
   const r = await Api.panel('POST', `/panel/group-requests/${p.id}/reject`, { reply: texto(post.reply).trim() });
-  Panel.resultado(r, 'Solicitud rechazada. El cliente recibe el motivo por correo.', '/panel/grupos');
+  Panel.resultado(r, 'Solicitud rechazada. El cliente recibe el motivo en la app y en la web.', '/panel/grupos');
 }

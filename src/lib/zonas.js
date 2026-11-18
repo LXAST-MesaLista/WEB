@@ -62,7 +62,7 @@ export const Cliente = {
       return;
     }
     const [tipo, mensaje] = {
-      ok: ['success', 'Señal pagada: tu reserva de grupo está confirmada. Te hemos enviado un correo.'],
+      ok: ['success', 'Señal pagada: tu reserva de grupo está confirmada.'],
       cancelado: ['warning', 'Has cancelado el pago. Aún puedes pagar antes de que termine el plazo.'],
       caducado: ['danger', 'El plazo para pagar había terminado: no se te ha cobrado nada.'],
     }[texto(pago)] ?? ['danger', 'No se ha podido completar el pago. No se te ha cobrado nada; inténtalo de nuevo.'];
