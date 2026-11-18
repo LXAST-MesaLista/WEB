@@ -2,9 +2,17 @@
 
 Web de MesaLista hecha con **Node.js, plantillas EJS, HTML, CSS, JavaScript y
 Bootstrap 5.3**, servida detrás de **nginx**. No tiene base de datos: todo lo
-pide al servidor de MesaLista ([Servidor](https://github.com/LXPT-UIB/Servidor))
+pide al servidor de MesaLista ([LXPT-UIB/Servidor](https://github.com/LXPT-UIB/Servidor))
 por su API `/api/v1`. La app para Android de los clientes es
-[MesaLista-Firebase](https://github.com/LXPT-UIB/MesaLista-Firebase) y usa la misma API.
+[LXPT-UIB/APP](https://github.com/LXPT-UIB/APP) y usa la misma API.
+
+Las tres partes de MesaLista, cada una en su repositorio:
+
+| Parte | Repositorio |
+|---|---|
+| Servidor: API REST (Node.js + PostgreSQL) y nginx | [LXPT-UIB/Servidor](https://github.com/LXPT-UIB/Servidor) |
+| Web de clientes y panel del restaurante (Node.js) | [LXPT-UIB/WEB](https://github.com/LXPT-UIB/WEB) |
+| App para Android de los clientes (Kotlin, Firebase) | [LXPT-UIB/APP](https://github.com/LXPT-UIB/APP) |
 
 ```
 Navegador ──HTTPS──> nginx ──┬── /assets ────> archivos de publico/
