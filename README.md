@@ -30,6 +30,7 @@ navegador solo recibe una cookie con un identificador aleatorio.
 | `bin/escribir-config.js` | Crea `config.json` al instalar |
 | `despliegue/` | `instalar.sh` (instalar o actualizar en el servidor), `nginx-mesalista.conf` y `mesalista-web.service` |
 | `docs/instalacion.md` | Cómo instalar la web en la máquina de Azure, paso a paso |
+| `docs/paginas.md` | Qué archivo cambiar para cada página (aspecto, textos, páginas nuevas) |
 
 ## Instalar en el servidor
 
