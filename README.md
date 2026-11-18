@@ -39,6 +39,7 @@ navegador solo recibe una cookie con un identificador aleatorio.
 | `despliegue/` | `instalar.sh` (instalar o actualizar en el servidor), `nginx-mesalista.conf` y `mesalista-web.service` |
 | `docs/instalacion.md` | Cómo instalar la web en la máquina de Azure, paso a paso |
 | `docs/paginas.md` | Qué archivo cambiar para cada página (aspecto, textos, páginas nuevas) |
+| `docs/manual-estilo.md` | Manual: cambiar colores, letra, distribución, textos e imágenes |
 
 ## Instalar en el servidor
 
