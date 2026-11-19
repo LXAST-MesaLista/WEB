@@ -40,6 +40,7 @@ navegador solo recibe una cookie con un identificador aleatorio.
 | `docs/instalacion.md` | Cómo instalar la web en la máquina de Azure, paso a paso |
 | `docs/paginas.md` | Qué archivo cambiar para cada página (aspecto, textos, páginas nuevas) |
 | `docs/manual-estilo.md` | Manual: cambiar colores, letra, distribución, textos e imágenes |
+| `docs/manual-desarrollo.md` | Manual de programación: páginas .js, plantillas .ejs, formularios, sesión, JavaScript del navegador y un ejemplo completo |
 | `docs/manual-rutas.md` | Manual: cómo funcionan las rutas de la web y de la API, con diagramas del flujo |
 | `docs/manual-base-de-datos.md` | Manual: cómo se conecta el servidor con PostgreSQL (copia del repositorio Servidor) |
 

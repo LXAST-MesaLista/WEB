@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="Segoe UI, Arial, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5e554d"/>
+    </marker>
+  </defs>
+  <rect width="900" height="560" fill="#ffffff"/>
+  <text x="450" y="26" text-anchor="middle" font-size="17" font-weight="700" fill="#221c17">El ciclo de un formulario: GET muestra · POST envía · 303 redirige</text>
+
+  <g font-weight="700" text-anchor="middle">
+    <rect x="30" y="44" width="170" height="40" rx="8" fill="#eef3fb" stroke="#4a6fa5"/><text x="115" y="69" fill="#22344f">Navegador</text>
+    <rect x="300" y="44" width="300" height="40" rx="8" fill="#fff7e0" stroke="#c98a09"/><text x="450" y="62" fill="#5a3d00">Página .js + plantilla .ejs</text><text x="450" y="78" font-size="11" font-weight="400" fill="#5a3d00">p. ej. paginas/cliente/cuenta.js + vistas/cliente/cuenta.ejs</text>
+    <rect x="700" y="44" width="170" height="40" rx="8" fill="#e7f4ec" stroke="#2f8f5b"/><text x="785" y="69" fill="#174a2e">API</text>
+  </g>
+  <g stroke="#c9bfb5" stroke-width="1.2" stroke-dasharray="4 4"><path d="M115,84 L115,540"/><path d="M450,84 L450,540"/><path d="M785,84 L785,540"/></g>
+
+  <!-- 1 GET -->
+  <rect x="20" y="96" width="860" height="20" fill="#f4efea"/><text x="30" y="111" font-weight="700" fill="#2b231d">1 · Abrir la página</text>
+  <g stroke="#5e554d" stroke-width="1.5" fill="none" marker-end="url(#f)">
+    <path d="M115,138 L448,138"/><path d="M450,214 L117,214"/>
+  </g>
+  <text x="125" y="132">GET /cuenta (cookie)</text>
+  <text x="460" y="160" fill="#5a3d00">Cliente.exigir(): el usuario está en la sesión</text>
+  <text x="460" y="178" fill="#5a3d00">(nombre y teléfono, guardados al entrar)</text>
+  <text x="160" y="208">200 HTML: formulario con los datos y &lt;%- Csrf.campo() %&gt;</text>
+
+  <!-- 2 POST con error -->
+  <rect x="20" y="230" width="860" height="20" fill="#fbeaea"/><text x="30" y="245" font-weight="700" fill="#7a1a14">2 · Enviar con un dato mal</text>
+  <g stroke="#5e554d" stroke-width="1.5" fill="none" marker-end="url(#f)">
+    <path d="M115,272 L448,272"/><path d="M450,296 L783,296"/><path d="M785,318 L452,318"/><path d="M450,352 L117,352"/>
+  </g>
+  <text x="125" y="266">POST /cuenta · _csrf, name, phone</text>
+  <text x="460" y="290">Api.cliente('PATCH', '/me', {name, phone})</text>
+  <text x="470" y="312" fill="#7a1a14">422 {"error": {"field": "phone", …}}</text>
+  <text x="140" y="346">400 HTML: el mismo formulario, con lo escrito y el error</text>
+  <text x="140" y="364" font-size="11.5" fill="#7a1a14">debajo del campo «Teléfono» (Vista.errores(r))</text>
+
+  <!-- 3 POST bien -->
+  <rect x="20" y="382" width="860" height="20" fill="#e7f4ec"/><text x="30" y="397" font-weight="700" fill="#174a2e">3 · Enviar bien</text>
+  <g stroke="#5e554d" stroke-width="1.5" fill="none" marker-end="url(#f)">
+    <path d="M115,424 L448,424"/><path d="M450,448 L783,448"/><path d="M785,470 L452,470"/><path d="M450,500 L117,500"/><path d="M115,528 L448,528"/>
+  </g>
+  <text x="125" y="418">POST /cuenta · _csrf, name, phone</text>
+  <text x="460" y="442">Api.cliente('PATCH', '/me', {…})</text>
+  <text x="560" y="464" fill="#174a2e">200 {"user": {…}}</text>
+  <text x="460" y="490" fill="#5a3d00">Sesion.aviso('success', 'Datos guardados.') · Vista.redirigir…</text>
+  <text x="150" y="494">303 Location: /cuenta</text>
+  <text x="125" y="522">GET /cuenta → página normal con el aviso verde (una sola vez)</text>
+</svg>
