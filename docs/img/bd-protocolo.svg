@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 640" font-family="Segoe UI, Arial, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5e554d"/>
+    </marker>
+  </defs>
+  <rect width="900" height="640" fill="#ffffff"/>
+  <text x="450" y="26" text-anchor="middle" font-size="17" font-weight="700" fill="#221c17">Mensajes entre la API y PostgreSQL (protocolo de PostgreSQL sobre TCP)</text>
+
+  <rect x="60" y="44" width="220" height="44" rx="8" fill="#e7f4ec" stroke="#2f8f5b"/>
+  <text x="170" y="64" text-anchor="middle" font-weight="700" fill="#174a2e">API (src/db.js + pg)</text>
+  <text x="170" y="80" text-anchor="middle" font-size="11" fill="#174a2e">cliente</text>
+  <rect x="620" y="44" width="220" height="44" rx="8" fill="#ece8f6" stroke="#6b5ca5"/>
+  <text x="730" y="64" text-anchor="middle" font-weight="700" fill="#2f2656">PostgreSQL</text>
+  <text x="730" y="80" text-anchor="middle" font-size="11" fill="#2f2656">servidor · 127.0.0.1:5432</text>
+  <g stroke="#c9bfb5" stroke-width="1.2" stroke-dasharray="4 4"><path d="M170,88 L170,628"/><path d="M730,88 L730,628"/></g>
+
+  <!-- Fase 1 -->
+  <rect x="20" y="98" width="860" height="22" fill="#f4efea"/>
+  <text x="30" y="114" font-weight="700" fill="#2b231d">1 · Abrir la conexión (una vez; luego se reutiliza del grupo)</text>
+  <g stroke="#5e554d" stroke-width="1.5" fill="none" marker-end="url(#f)">
+    <path d="M170,140 L728,140"/>
+    <path d="M730,172 L172,172"/>
+    <path d="M170,204 L728,204"/>
+    <path d="M730,236 L172,236"/>
+    <path d="M730,268 L172,268"/>
+  </g>
+  <text x="180" y="134">StartupMessage: user=mesalista · database=mesalista · options TimeZone=Europe/Madrid</text>
+  <text x="400" y="166" fill="#2f2656">AuthenticationSASL: «demuestra la contraseña con SCRAM-SHA-256»</text>
+  <text x="180" y="198">SASLInitialResponse / SASLResponse (prueba calculada; la contraseña no viaja)</text>
+  <text x="460" y="230" fill="#2f2656">AuthenticationOk · ParameterStatus (versión, zona…)</text>
+  <text x="560" y="262" fill="#2f2656">ReadyForQuery («listo»)</text>
+
+  <!-- Fase 2 -->
+  <rect x="20" y="284" width="860" height="22" fill="#f4efea"/>
+  <text x="30" y="300" font-weight="700" fill="#2b231d">2 · Una consulta con parámetros: db.one('SELECT … WHERE s.token_hash = ?', [hash])</text>
+  <g stroke="#5e554d" stroke-width="1.5" fill="none" marker-end="url(#f)">
+    <path d="M170,330 L728,330"/>
+    <path d="M170,362 L728,362"/>
+    <path d="M170,394 L728,394"/>
+    <path d="M730,426 L172,426"/>
+    <path d="M730,458 L172,458"/>
+    <path d="M730,490 L172,490"/>
+  </g>
+  <text x="180" y="324">Parse: «SELECT … FROM sessions s JOIN users u … WHERE s.token_hash = $1»</text>
+  <text x="180" y="356">Bind: $1 = 'ab12…' (el dato va aparte del SQL: no se puede inyectar)</text>
+  <text x="180" y="388">Execute + Sync</text>
+  <text x="430" y="420" fill="#2f2656">RowDescription: columnas (last_seen_at, kind, id, name…)</text>
+  <text x="560" y="452" fill="#2f2656">DataRow: una fila por resultado</text>
+  <text x="430" y="484" fill="#2f2656">CommandComplete «SELECT 1» · ReadyForQuery</text>
+
+  <!-- Fase 3 -->
+  <rect x="20" y="508" width="860" height="22" fill="#fbeaea"/>
+  <text x="30" y="524" font-weight="700" fill="#7a1a14">3 · Si algo falla: ErrorResponse con un código SQLSTATE de 5 caracteres</text>
+  <g stroke="#b3261e" stroke-width="1.5" fill="none" marker-end="url(#f)">
+    <path d="M730,560 L172,560"/>
+  </g>
+  <text x="300" y="554" fill="#7a1a14">ErrorResponse: SQLSTATE 23P01 (dos reservas solapadas en la misma mesa)</text>
+  <text x="180" y="588" fill="#7a1a14">pg lo convierte en un error de JavaScript con e.code = '23P01'</text>
+  <text x="180" y="606" fill="#7a1a14">la API lo traduce: 409 {"error": {"code": "conflict", "message": "Esa hora ya no está disponible…"}}</text>
+</svg>

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Segoe UI, Arial, sans-serif" font-size="12.5">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5e554d"/>
+    </marker>
+  </defs>
+  <rect width="900" height="600" fill="#ffffff"/>
+  <text x="450" y="26" text-anchor="middle" font-size="17" font-weight="700" fill="#221c17">Una transacción real: crear una reserva (booking.createForClient → db.tx)</text>
+
+  <g font-size="12.5">
+    <rect x="40" y="50" width="520" height="34" rx="7" fill="#ece8f6" stroke="#6b5ca5"/>
+    <text x="56" y="72" font-weight="700" fill="#2f2656">BEGIN</text>
+    <text x="140" y="72" fill="#2f2656">todo lo de abajo va por la MISMA conexión</text>
+
+    <rect x="40" y="96" width="520" height="34" rx="7" fill="#f4efea" stroke="#8c8178"/>
+    <text x="56" y="118">SELECT id FROM users WHERE id = $1 FOR UPDATE</text>
+
+    <rect x="40" y="142" width="520" height="34" rx="7" fill="#f4efea" stroke="#8c8178"/>
+    <text x="56" y="164">SELECT id FROM reservations WHERE user_id = $1 AND request_id = $2</text>
+
+    <rect x="40" y="188" width="520" height="34" rx="7" fill="#f4efea" stroke="#8c8178"/>
+    <text x="56" y="210">SELECT COUNT(*) … status = 'confirmed' AND start_at &gt; $2</text>
+
+    <rect x="40" y="234" width="520" height="52" rx="7" fill="#fff7e0" stroke="#c98a09"/>
+    <text x="56" y="256">SELECT … FROM dining_tables … ORDER BY id FOR UPDATE</text>
+    <text x="56" y="274" font-size="11.5" fill="#5a3d00">bloquea las mesas candidatas y mira cuál está libre a esa hora</text>
+
+    <rect x="40" y="298" width="520" height="52" rx="7" fill="#e7f4ec" stroke="#2f8f5b"/>
+    <text x="56" y="320">INSERT INTO reservations (…) VALUES ($1, $2, …) RETURNING id</text>
+    <text x="56" y="338" font-size="11.5" fill="#174a2e">un disparador apunta la mesa y el intervalo en table_occupancy</text>
+
+    <rect x="40" y="362" width="520" height="34" rx="7" fill="#e7f4ec" stroke="#2f8f5b"/>
+    <text x="56" y="384">INSERT INTO reservation_menu_options … · INSERT INTO push_outbox …</text>
+
+    <rect x="40" y="408" width="520" height="52" rx="7" fill="#ece8f6" stroke="#6b5ca5"/>
+    <text x="56" y="430" font-weight="700" fill="#2f2656">COMMIT</text>
+    <text x="140" y="430" fill="#2f2656">se comprueba la restricción ex_occupancy_overlap</text>
+    <text x="140" y="448" font-size="11.5" fill="#2f2656">(ninguna mesa con dos reservas que se solapen) y todo queda guardado</text>
+  </g>
+  <g stroke="#5e554d" stroke-width="1.4" fill="none" marker-end="url(#f)">
+    <path d="M300,84 L300,94"/><path d="M300,130 L300,140"/><path d="M300,176 L300,186"/>
+    <path d="M300,222 L300,232"/><path d="M300,286 L300,296"/><path d="M300,350 L300,360"/><path d="M300,396 L300,406"/>
+  </g>
+
+  <!-- Explicaciones -->
+  <text x="590" y="112" font-size="12" fill="#5e554d">← que el mismo cliente no reserve</text>
+  <text x="590" y="128" font-size="12" fill="#5e554d">   dos veces a la vez</text>
+  <text x="590" y="164" font-size="12" fill="#5e554d">← ¿ya existe? (mismo request_id)</text>
+  <text x="590" y="210" font-size="12" fill="#5e554d">← máximo de reservas pendientes</text>
+  <text x="590" y="256" font-size="12" fill="#5e554d">← otra petición que quiera esas</text>
+  <text x="590" y="272" font-size="12" fill="#5e554d">   mesas espera aquí su turno</text>
+
+  <rect x="590" y="300" width="290" height="160" rx="10" fill="#fbeaea" stroke="#b3261e"/>
+  <text x="606" y="324" font-weight="700" fill="#7a1a14">Si cualquier paso falla → ROLLBACK</text>
+  <text x="606" y="346" font-size="12" fill="#7a1a14">se deshace TODO: no queda nada a medias</text>
+  <text x="606" y="370" font-size="12" fill="#7a1a14">• sin mesa libre → 409 conflict</text>
+  <text x="606" y="390" font-size="12" fill="#7a1a14">• 23P01 solapamiento → 409 conflict</text>
+  <text x="606" y="410" font-size="12" fill="#7a1a14">• 23505 request_id repetido → la ya creada</text>
+  <text x="606" y="430" font-size="12" fill="#7a1a14">• 40P01 / 55P03 / 40001 → se repite</text>
+  <text x="606" y="448" font-size="12" fill="#7a1a14">  la transacción (hasta 4 veces)</text>
+
+  <rect x="40" y="484" width="840" height="96" rx="10" fill="#fbf9f7" stroke="#c9bfb5"/>
+  <text x="56" y="508" font-weight="700" fill="#2b231d">En el código solo se ve esto:</text>
+  <text x="56" y="530" font-family="Consolas, monospace" font-size="12" fill="#2b231d">const [id, creada] = await db.tx(async () =&gt; {   // BEGIN</text>
+  <text x="56" y="548" font-family="Consolas, monospace" font-size="12" fill="#2b231d">  …consultas con db.value / db.one / db.exec / db.insert…</text>
+  <text x="56" y="566" font-family="Consolas, monospace" font-size="12" fill="#2b231d">});                                                // COMMIT, o ROLLBACK si se lanza un error</text>
+</svg>

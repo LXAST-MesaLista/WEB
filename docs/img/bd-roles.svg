@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5e554d"/>
+    </marker>
+  </defs>
+  <rect width="900" height="400" fill="#ffffff"/>
+  <text x="450" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="#221c17">Los usuarios (roles) de PostgreSQL y lo que puede hacer cada uno</text>
+
+  <rect x="30" y="60" width="260" height="150" rx="12" fill="#fbeaea" stroke="#b3261e" stroke-width="1.5"/>
+  <text x="160" y="88" text-anchor="middle" font-weight="700" font-size="15" fill="#7a1a14">postgres</text>
+  <text x="160" y="108" text-anchor="middle" font-size="12" fill="#7a1a14">superusuario: puede todo</text>
+  <text x="50" y="136" font-size="12" fill="#7a1a14">• sin contraseña: solo desde la máquina,</text>
+  <text x="50" y="153" font-size="12" fill="#7a1a14">  siendo el usuario «postgres» (peer)</text>
+  <text x="50" y="174" font-size="12" fill="#7a1a14">• lo usan install.sh, backup.sh,</text>
+  <text x="50" y="191" font-size="12" fill="#7a1a14">  restore.sh y «sudo -u postgres psql»</text>
+
+  <rect x="320" y="60" width="260" height="150" rx="12" fill="#ece8f6" stroke="#6b5ca5" stroke-width="1.5"/>
+  <text x="450" y="88" text-anchor="middle" font-weight="700" font-size="15" fill="#2f2656">mesalista_owner</text>
+  <text x="450" y="108" text-anchor="middle" font-size="12" fill="#2f2656">dueño de tablas, vista y procedimientos</text>
+  <text x="340" y="136" font-size="12" fill="#2f2656">• NOLOGIN: nadie puede entrar con él</text>
+  <text x="340" y="157" font-size="12" fill="#2f2656">• con él se crea el esquema</text>
+  <text x="340" y="174" font-size="12" fill="#2f2656">  (postgres hace SET ROLE mesalista_owner)</text>
+  <text x="340" y="195" font-size="12" fill="#2f2656">• puede crear, cambiar y borrar tablas</text>
+
+  <rect x="610" y="60" width="260" height="150" rx="12" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="740" y="88" text-anchor="middle" font-weight="700" font-size="15" fill="#174a2e">mesalista</text>
+  <text x="740" y="108" text-anchor="middle" font-size="12" fill="#174a2e">el de la API y worker.js</text>
+  <text x="630" y="136" font-size="12" fill="#174a2e">• LOGIN con contraseña (config.json)</text>
+  <text x="630" y="157" font-size="12" fill="#174a2e">• SELECT, INSERT, UPDATE, DELETE</text>
+  <text x="630" y="174" font-size="12" fill="#174a2e">• EXECUTE funciones y procedimientos</text>
+  <text x="630" y="195" font-size="12" fill="#b3261e">• NO puede CREATE / ALTER / DROP</text>
+
+  <path d="M290,135 L318,135" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <path d="M580,135 L608,135" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <text x="270" y="232" font-size="11" fill="#5e554d">crea el rol y la base de datos</text>
+  <text x="560" y="232" font-size="11" fill="#5e554d">le da permisos (permisos.sql)</text>
+
+  <rect x="30" y="260" width="840" height="116" rx="12" fill="#fbf9f7" stroke="#c9bfb5"/>
+  <text x="50" y="286" font-weight="700" fill="#2b231d">Por qué dos roles</text>
+  <text x="50" y="308" font-size="12" fill="#2b231d">Si alguien consiguiera que la API ejecutara un SQL malicioso, con «mesalista» podría como mucho leer o cambiar filas,</text>
+  <text x="50" y="326" font-size="12" fill="#2b231d">pero nunca borrar tablas ni cambiar su estructura. Y como mesalista_owner no puede iniciar sesión, su contraseña no existe</text>
+  <text x="50" y="344" font-size="12" fill="#2b231d">y no se puede robar. Principio de «mínimo privilegio»: cada pieza tiene solo los permisos que necesita.</text>
+  <text x="50" y="366" font-size="11" fill="#8c8178">Reglas de acceso (pg_hba.conf de Ubuntu): local → peer (usuario del sistema) · host 127.0.0.1 y ::1 → scram-sha-256 (contraseña)</text>
+</svg>
