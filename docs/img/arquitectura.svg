@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 470" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5e554d"/>
+    </marker>
+  </defs>
+  <rect width="900" height="470" fill="#ffffff"/>
+  <text x="450" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="#221c17">Las piezas de MesaLista y por dónde pasa cada petición</text>
+
+  <!-- Clientes -->
+  <rect x="30" y="70" width="170" height="64" rx="10" fill="#eef3fb" stroke="#4a6fa5"/>
+  <text x="115" y="97" text-anchor="middle" font-weight="700" fill="#22344f">Navegador</text>
+  <text x="115" y="118" text-anchor="middle" font-size="12" fill="#22344f">clientes y personal</text>
+  <rect x="30" y="300" width="170" height="64" rx="10" fill="#eef3fb" stroke="#4a6fa5"/>
+  <text x="115" y="327" text-anchor="middle" font-weight="700" fill="#22344f">App Android</text>
+  <text x="115" y="348" text-anchor="middle" font-size="12" fill="#22344f">Kotlin · token Bearer</text>
+
+  <!-- nginx -->
+  <rect x="260" y="150" width="150" height="130" rx="10" fill="#f6e7e2" stroke="#a8432a" stroke-width="1.5"/>
+  <text x="335" y="190" text-anchor="middle" font-weight="700" fill="#5c2416">nginx</text>
+  <text x="335" y="212" text-anchor="middle" font-size="12" fill="#5c2416">HTTPS 443</text>
+  <text x="335" y="232" text-anchor="middle" font-size="12" fill="#5c2416">reparte según</text>
+  <text x="335" y="250" text-anchor="middle" font-size="12" fill="#5c2416">la dirección</text>
+
+  <!-- Destinos -->
+  <rect x="480" y="58" width="190" height="52" rx="10" fill="#f4efea" stroke="#8c8178"/>
+  <text x="575" y="80" text-anchor="middle" font-weight="700" fill="#2b231d">Archivos /assets</text>
+  <text x="575" y="99" text-anchor="middle" font-size="12" fill="#5e554d">CSS, JS, imágenes</text>
+
+  <rect x="480" y="140" width="190" height="80" rx="10" fill="#fff7e0" stroke="#c98a09" stroke-width="1.5"/>
+  <text x="575" y="166" text-anchor="middle" font-weight="700" fill="#5a3d00">WEB (Node.js)</text>
+  <text x="575" y="186" text-anchor="middle" font-size="12" fill="#5a3d00">127.0.0.1:8092</text>
+  <text x="575" y="206" text-anchor="middle" font-size="12" fill="#5a3d00">src/rutas.js → páginas</text>
+
+  <rect x="480" y="270" width="190" height="80" rx="10" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.5"/>
+  <text x="575" y="296" text-anchor="middle" font-weight="700" fill="#174a2e">API (Node.js)</text>
+  <text x="575" y="316" text-anchor="middle" font-size="12" fill="#174a2e">127.0.0.1:8091</text>
+  <text x="575" y="336" text-anchor="middle" font-size="12" fill="#174a2e">src/routes.js → lógica</text>
+
+  <rect x="730" y="270" width="140" height="80" rx="10" fill="#ece8f6" stroke="#6b5ca5"/>
+  <text x="800" y="303" text-anchor="middle" font-weight="700" fill="#2f2656">PostgreSQL</text>
+  <text x="800" y="324" text-anchor="middle" font-size="12" fill="#2f2656">reservas, cuentas…</text>
+
+  <rect x="730" y="390" width="140" height="56" rx="10" fill="#f4efea" stroke="#8c8178"/>
+  <text x="800" y="414" text-anchor="middle" font-weight="700" fill="#2b231d">Firebase · PayPal</text>
+  <text x="800" y="433" text-anchor="middle" font-size="12" fill="#5e554d">avisos push · señal</text>
+
+  <!-- Flechas -->
+  <path d="M200,102 L258,180" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <text x="178" y="158" font-size="12" fill="#5e554d">HTML</text>
+  <path d="M200,332 L258,250" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <text x="170" y="285" font-size="12" fill="#5e554d">JSON</text>
+
+  <path d="M410,170 L478,88" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <text x="400" y="118" font-size="12" fill="#5e554d">/assets/…</text>
+  <path d="M410,200 L478,185" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <text x="418" y="183" font-size="12" fill="#5e554d">/ , /panel…</text>
+  <path d="M410,250 L478,300" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <text x="404" y="295" font-size="12" fill="#5e554d">/api/v1/…</text>
+
+  <path d="M575,220 L575,268" stroke="#a8432a" stroke-width="2" fill="none" marker-end="url(#f)" stroke-dasharray="6 4"/>
+  <text x="585" y="246" font-size="12" fill="#a8432a">la web llama a la API (JSON + Bearer)</text>
+
+  <path d="M670,310 L728,310" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <text x="676" y="300" font-size="12" fill="#5e554d">SQL</text>
+  <path d="M640,350 L728,410" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+
+  <text x="30" y="420" font-size="12" fill="#5e554d">El navegador nunca habla con la API ni con PostgreSQL:</text>
+  <text x="30" y="438" font-size="12" fill="#5e554d">siempre pasa por la web. La app sí llama a la API directamente.</text>
+</svg>

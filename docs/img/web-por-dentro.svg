@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5e554d"/>
+    </marker>
+  </defs>
+  <rect width="900" height="560" fill="#ffffff"/>
+  <text x="450" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="#221c17">Dentro de la WEB: qué pasa con cada petición del navegador</text>
+
+  <!-- Columna principal -->
+  <rect x="300" y="50" width="300" height="44" rx="8" fill="#eef3fb" stroke="#4a6fa5"/>
+  <text x="450" y="70" text-anchor="middle" font-weight="700" fill="#22344f">Llega «POST /reservar/confirmar?fecha=…»</text>
+  <text x="450" y="86" text-anchor="middle" font-size="11" fill="#22344f">src/servidor.js → atender() en src/app.js</text>
+
+  <rect x="300" y="118" width="300" height="40" rx="8" fill="#f4efea" stroke="#8c8178"/>
+  <text x="450" y="143" text-anchor="middle" fill="#2b231d">① ¿Es /assets/…? → se envía el archivo y fin</text>
+
+  <rect x="300" y="182" width="300" height="40" rx="8" fill="#f4efea" stroke="#8c8178"/>
+  <text x="450" y="207" text-anchor="middle" fill="#2b231d">② Abre la sesión (cookie) y prepara peticion()</text>
+
+  <rect x="300" y="246" width="300" height="40" rx="8" fill="#f4efea" stroke="#8c8178"/>
+  <text x="450" y="263" text-anchor="middle" fill="#2b231d">③ despachar(): solo GET, HEAD o POST</text>
+  <text x="450" y="279" text-anchor="middle" font-size="12" fill="#2b231d">en los POST comprueba el token CSRF</text>
+
+  <rect x="300" y="310" width="300" height="52" rx="8" fill="#fff7e0" stroke="#c98a09" stroke-width="1.6"/>
+  <text x="450" y="332" text-anchor="middle" font-weight="700" fill="#5a3d00">④ src/rutas.js: busca la dirección en TABLA</text>
+  <text x="450" y="350" text-anchor="middle" font-size="12" fill="#5a3d00">'/reservar/confirmar' → 'cliente/confirmar'</text>
+
+  <rect x="300" y="386" width="300" height="52" rx="8" fill="#fff7e0" stroke="#c98a09" stroke-width="1.6"/>
+  <text x="450" y="408" text-anchor="middle" font-weight="700" fill="#5a3d00">⑤ src/paginas/cliente/confirmar.js</text>
+  <text x="450" y="426" text-anchor="middle" font-size="12" fill="#5a3d00">lee el formulario, llama a la API, decide</text>
+
+  <rect x="300" y="462" width="300" height="44" rx="8" fill="#f6e7e2" stroke="#a8432a" stroke-width="1.6"/>
+  <text x="450" y="482" text-anchor="middle" font-weight="700" fill="#5c2416">⑥ Termina con un «Fin»</text>
+  <text x="450" y="498" text-anchor="middle" font-size="12" fill="#5c2416">Vista.mostrar / redirigir / json / archivo / error</text>
+
+  <g stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)">
+    <path d="M450,94 L450,116"/><path d="M450,158 L450,180"/><path d="M450,222 L450,244"/>
+    <path d="M450,286 L450,308"/><path d="M450,362 L450,384"/><path d="M450,438 L450,460"/>
+  </g>
+
+  <!-- Salidas laterales -->
+  <rect x="40" y="246" width="200" height="40" rx="8" fill="#fbeaea" stroke="#b3261e"/>
+  <text x="140" y="271" text-anchor="middle" fill="#7a1a14">405 / CSRF mal → página de error</text>
+  <path d="M300,266 L242,266" stroke="#b3261e" stroke-width="1.4" fill="none" marker-end="url(#f)"/>
+
+  <rect x="40" y="316" width="200" height="40" rx="8" fill="#fbeaea" stroke="#b3261e"/>
+  <text x="140" y="341" text-anchor="middle" fill="#7a1a14">No está en TABLA → 404</text>
+  <path d="M300,336 L242,336" stroke="#b3261e" stroke-width="1.4" fill="none" marker-end="url(#f)"/>
+
+  <!-- API -->
+  <rect x="660" y="386" width="210" height="52" rx="8" fill="#e7f4ec" stroke="#2f8f5b" stroke-width="1.6"/>
+  <text x="765" y="408" text-anchor="middle" font-weight="700" fill="#174a2e">API · POST /reservations</text>
+  <text x="765" y="426" text-anchor="middle" font-size="12" fill="#174a2e">src/lib/api.js (JSON + Bearer)</text>
+  <path d="M600,402 L658,402" stroke="#2f8f5b" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <path d="M658,424 L602,424" stroke="#2f8f5b" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+  <text x="604" y="447" font-size="11" fill="#174a2e">respuesta JSON</text>
+
+  <!-- Respuestas -->
+  <text x="640" y="478" font-weight="700" fill="#2b231d">⑦ respuesta() en src/app.js</text>
+  <text x="640" y="498" font-size="12" fill="#2b231d">pagina → .ejs dentro de base.ejs (HTML)</text>
+  <text x="640" y="516" font-size="12" fill="#2b231d">redirigir → 303 Location: /reservas/15</text>
+  <text x="640" y="534" font-size="12" fill="#2b231d">json · archivo (CSV) · error (404, 500…)</text>
+  <path d="M600,484 L634,484" stroke="#5e554d" stroke-width="1.6" fill="none" marker-end="url(#f)"/>
+
+  <text x="40" y="420" font-size="12" fill="#5e554d">Cabeceras de seguridad (CSP, no-store…)</text>
+  <text x="40" y="438" font-size="12" fill="#5e554d">se añaden a TODAS las respuestas.</text>
+</svg>
