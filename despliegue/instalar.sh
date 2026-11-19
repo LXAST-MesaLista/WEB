@@ -6,6 +6,7 @@
 # Desde la copia del proyecto en la máquina (puede estar en la carpeta personal):
 #   sudo bash despliegue/instalar.sh
 #   sudo bash despliegue/instalar.sh --dominio <dominio>   (solo si el servidor no lo guardó)
+#   sudo bash despliegue/instalar.sh --no-interactivo      sin preguntas (Ansible)
 #
 # Se puede ejecutar tantas veces como haga falta: actualiza el código y
 # conserva config/config.json y las sesiones abiertas.
@@ -33,11 +34,13 @@ API_PORT=8091
 NODE_MAJOR=24
 
 NUEVO_DOMINIO=""
+NO_INTERACTIVO=${ML_NO_INTERACTIVO:-0}
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --no-interactivo) NO_INTERACTIVO=1 ;;
         --dominio)   NUEVO_DOMINIO=${2:-}; shift ;;
         --dominio=*) NUEVO_DOMINIO=${1#*=} ;;
-        -h|--help)   sed -n '2,19p' "$0"; exit 0 ;;
+        -h|--help)   sed -n '2,20p' "$0"; exit 0 ;;
         *)           echo "Opción desconocida: $1 (usa --help)" >&2; exit 1 ;;
     esac
     shift
@@ -78,6 +81,9 @@ if [[ -n "$SERVER_DOMAIN" ]]; then
     DOMAIN=$SERVER_DOMAIN
 elif [[ -n "$NUEVO_DOMINIO" ]]; then
     DOMAIN=$NUEVO_DOMINIO
+elif [[ $NO_INTERACTIVO -eq 1 ]]; then
+    warn "Falta el dominio: instala antes el servidor (guarda install.env) o usa --dominio."
+    exit 1
 else
     read -rp "Dominio del servidor (p. ej. mesalista.spaincentral.cloudapp.azure.com): " DOMAIN
     DOMAIN=$(normalizar_dominio "$DOMAIN")
@@ -90,6 +96,12 @@ echo "Dominio: $DOMAIN"
 # Paquetes: nginx, certbot y Node.js (el mismo que usa la API)
 # ---------------------------------------------------------------------------
 say "Paquetes"
+# Si Apache (instalación anterior) ocupa los puertos 80 y 443, el paquete de
+# nginx no puede arrancar al instalarse y apt falla: se apaga antes.
+if systemctl is-enabled --quiet apache2 2>/dev/null || systemctl is-active --quiet apache2 2>/dev/null; then
+    warn "Apache estaba activo: se detiene y se desactiva; nginx atiende ahora el dominio."
+    systemctl disable --now apache2 >/dev/null 2>&1 || true
+fi
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq nginx certbot rsync curl openssl ca-certificates gnupg >/dev/null
@@ -146,16 +158,11 @@ systemctl enable mesalista-web >/dev/null
 systemctl restart mesalista-web
 
 # ---------------------------------------------------------------------------
-# nginx en los puertos 80 y 443. Si Apache los ocupaba (instalación anterior
-# del servidor), se detiene y se desactiva: nginx hace ahora su trabajo
-# (HTTPS, /api/v1 → API, desafío de Let's Encrypt). Mientras no hay
-# certificado de Let's Encrypt arranca con uno autofirmado.
+# nginx en los puertos 80 y 443 (Apache ya se ha apagado en «Paquetes»):
+# HTTPS, /api/v1 → API, el resto → la web y el desafío de Let's Encrypt.
+# Mientras no hay certificado de Let's Encrypt arranca con uno autofirmado.
 # ---------------------------------------------------------------------------
 say "nginx"
-if systemctl list-unit-files apache2.service >/dev/null 2>&1 && systemctl is-enabled --quiet apache2 2>/dev/null; then
-    warn "Apache estaba activo: se detiene y se desactiva; nginx atiende ahora el dominio."
-    systemctl disable --now apache2 >/dev/null 2>&1 || true
-fi
 
 LE_CERT="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
 LE_KEY="/etc/letsencrypt/live/$DOMAIN/privkey.pem"
@@ -195,6 +202,9 @@ fi
 # ---------------------------------------------------------------------------
 if [[ $CERT_OK -eq 0 ]]; then
     say "Certificado para $DOMAIN"
+    if [[ -z "$LE_EMAIL" && $NO_INTERACTIVO -eq 1 ]]; then
+        warn "Falta LE_EMAIL: instala antes el servidor (lo guarda en install.env)."; exit 1
+    fi
     [[ -n "$LE_EMAIL" ]] || read -rp "Correo para Let's Encrypt (avisos de caducidad): " LE_EMAIL
     if certbot certonly --webroot -w "$ACME_DIR" -d "$DOMAIN" -m "$LE_EMAIL" \
             --agree-tos --non-interactive --keep-until-expiring; then

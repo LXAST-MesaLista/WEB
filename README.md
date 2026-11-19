@@ -58,6 +58,10 @@ cd ~/MesaLista-web && sudo bash despliegue/instalar.sh
 Para actualizar: `git pull` y volver a ejecutar `instalar.sh`. El dominio es el
 del servidor (lo lee de `/etc/mesalista/install.env`).
 
+Sin preguntas: `sudo bash despliegue/instalar.sh --no-interactivo`. Para instalar el
+servidor y la web de una vez con Ansible, ver
+[LXPT-UIB/despliegue-mesalista-ansible](https://github.com/LXPT-UIB/despliegue-mesalista-ansible).
+
 Seguridad:
 - La web solo usa HTTPS (nginx redirige el puerto 80). La cookie de sesión es `HttpOnly`, `Secure` y `SameSite=Lax`.
 - Cada formulario lleva un token CSRF.
