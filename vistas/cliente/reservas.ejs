@@ -4,63 +4,57 @@
   aceptadas llevan su reserva en g.reserva), noAceptadas (rechazadas por el
   local) y anteriores ({ r } reserva terminada o { g } solicitud caducada o
   cancelada).
+
+  Rejilla Bento (.bento, en mesalista.css): arriba las cifras; debajo, las
+  próximas reservas y, a su lado, las solicitudes de grupo; al final, las
+  anteriores.
 %>
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
   <h1 class="h3 mb-0">Mis reservas</h1>
-  <div class="d-flex gap-2">
+  <div class="d-flex flex-wrap gap-2">
     <a class="btn btn-outline-primary" href="/vincular">Añadir una reserva del local</a>
     <a class="btn btn-primary" href="/reservar">Reservar mesa</a>
   </div>
 </div>
 
-<div class="row g-4">
-  <div class="col-lg-7">
-    <h2 class="h5">Próximas</h2>
+<div class="bento">
+  <div class="bento-cifras">
+    <div class="bento-celda bento-suave">
+      <span class="bento-etiqueta">Próximas</span>
+      <span class="cifra-bento text-primary-emphasis mt-auto"><%= proximas.length %></span>
+    </div>
+    <div class="bento-celda">
+      <span class="bento-etiqueta">Solicitudes de grupo</span>
+      <span class="cifra-bento mt-auto"><%= solicitudes.length %></span>
+    </div>
+    <div class="bento-celda">
+      <span class="bento-etiqueta">Anteriores</span>
+      <span class="cifra-bento mt-auto"><%= anteriores.length %></span>
+    </div>
+  </div>
+
+  <section class="bento-celda bento-md-6 bento-lg-7<%= noAceptadas.length ? ' bento-alta' : '' %>" aria-labelledby="proximas-titulo">
+    <h2 class="h5 mb-3" id="proximas-titulo">Próximas</h2>
 <% if (proximas.length) { -%>
-    <div class="list-group shadow-sm mb-4">
+    <div class="list-group lista-bento">
 <% for (const r of proximas) { -%>
       <%- fragmento('cliente/_tarjeta-reserva', { r }) %>
 <% } -%>
     </div>
 <% } else { -%>
-    <div class="card card-body text-center text-body-secondary mb-4">No tienes reservas pendientes.</div>
+    <p class="text-body-secondary text-center my-auto py-3">No tienes reservas pendientes.</p>
 <% } -%>
+  </section>
 
-<% if (anteriores.length) { -%>
-    <h2 class="h5">Anteriores</h2>
-    <div class="list-group">
-<% for (const { r, g } of anteriores) { -%>
-<% if (r) { -%>
-      <%- fragmento('cliente/_tarjeta-reserva', { r }) %>
-<% } else { -%>
-      <div class="list-group-item d-flex align-items-center gap-3 py-3">
-        <div class="text-center fecha-tarjeta">
-          <div class="small text-body-secondary"><%= Formato.fechaCorta(g.date) %></div>
-          <div class="fs-5 fw-semibold"><%= g.time %></div>
-        </div>
-        <div class="flex-grow-1">
-          <div><%= Formato.personas(g.party) %> · solicitud de grupo</div>
-          <%- Formato.estadoSolicitud(g.status) %>
-<% if (g.reply) { -%>
-          <div class="small mt-1">Restaurante: «<%= g.reply %>»</div>
-<% } -%>
-        </div>
-      </div>
-<% } -%>
-<% } -%>
-    </div>
-<% } -%>
-  </div>
-
-  <div class="col-lg-5">
-    <h2 class="h5">Solicitudes de grupo</h2>
+  <section class="bento-celda bento-md-6 bento-lg-5" aria-labelledby="solicitudes-titulo">
+    <h2 class="h5 mb-3" id="solicitudes-titulo">Solicitudes de grupo</h2>
 <% if (!solicitudes.length) { -%>
-    <div class="card card-body text-body-secondary">
+    <p class="text-body-secondary mb-0">
       No tienes solicitudes de grupo pendientes. <a href="/grupos">Pide mesa para un grupo</a>
-    </div>
+    </p>
 <% } -%>
 <% for (const g of solicitudes) { const sinPagar = g.status === 'accepted'; -%>
-    <div class="card card-body shadow-sm mb-3">
+    <div class="bento-item d-flex flex-column">
       <div class="d-flex justify-content-between align-items-start gap-2">
         <strong><%= Formato.fechaCorta(g.date) %> · <%= g.time %> · <%= Formato.personas(g.party) %></strong>
         <%- sinPagar ? Formato.estado('pending_payment') : Formato.estadoSolicitud(g.status) %>
@@ -82,11 +76,13 @@
 <% } -%>
     </div>
 <% } -%>
+  </section>
 
 <% if (noAceptadas.length) { -%>
-    <h2 class="h5 mt-4">No aceptadas</h2>
+  <section class="bento-celda bento-md-6 bento-lg-5" aria-labelledby="no-aceptadas-titulo">
+    <h2 class="h5 mb-3" id="no-aceptadas-titulo">No aceptadas</h2>
 <% for (const g of noAceptadas) { -%>
-    <div class="card card-body mb-3">
+    <div class="bento-item">
       <div class="d-flex justify-content-between align-items-start gap-2">
         <strong><%= Formato.fechaCorta(g.date) %> · <%= g.time %> · <%= Formato.personas(g.party) %></strong>
         <%- Formato.estadoSolicitud(g.status) %>
@@ -96,6 +92,33 @@
 <% } -%>
     </div>
 <% } -%>
+  </section>
 <% } -%>
-  </div>
+
+<% if (anteriores.length) { -%>
+  <section class="bento-celda" aria-labelledby="anteriores-titulo">
+    <h2 class="h5 mb-3" id="anteriores-titulo">Anteriores</h2>
+    <div class="list-group lista-bento lista-bento-doble">
+<% for (const { r, g } of anteriores) { -%>
+<% if (r) { -%>
+      <%- fragmento('cliente/_tarjeta-reserva', { r }) %>
+<% } else { -%>
+      <div class="list-group-item d-flex align-items-center gap-3 py-3">
+        <div class="text-center fecha-tarjeta">
+          <div class="small text-body-secondary"><%= Formato.fechaCorta(g.date) %></div>
+          <div class="fs-5 fw-semibold"><%= g.time %></div>
+        </div>
+        <div class="flex-grow-1">
+          <div><%= Formato.personas(g.party) %> · solicitud de grupo</div>
+          <%- Formato.estadoSolicitud(g.status) %>
+<% if (g.reply) { -%>
+          <div class="small mt-1">Restaurante: «<%= g.reply %>»</div>
+<% } -%>
+        </div>
+      </div>
+<% } -%>
+<% } -%>
+    </div>
+  </section>
+<% } -%>
 </div>

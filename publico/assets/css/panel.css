@@ -50,9 +50,45 @@
   vertical-align: -1px;
 }
 
-/* Fichas de mesa */
+/* Sala: cifras de cada estado, que hacen también de leyenda (rejilla Bento) */
+.leyenda-sala {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: var(--ml-hueco);
+}
+
+.leyenda-sala > .bento-celda {
+  padding: 1rem 1.25rem;
+}
+
+.leyenda-sala .bento-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+}
+
+/* Fichas de mesa: franja del color del estado a la izquierda, que sigue la
+   esquina redondeada, sobre el fondo de la página (van dentro de una celda) */
 .ficha-mesa {
-  border-left: .35rem solid var(--ml-estado);
+  --bs-card-bg: var(--bs-body-bg);
+  --bs-card-border-radius: var(--ml-radio-sm);
+  --bs-card-inner-border-radius: calc(var(--ml-radio-sm) - 1px);
+  box-shadow: inset .4rem 0 0 var(--ml-estado);
+}
+
+@media (min-width: 768px) {
+  .ficha-mesa {
+    --bs-card-spacer-x: 1.35rem;
+    --bs-card-spacer-y: 1.1rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .ficha-elegida {
+    align-self: start;
+    position: sticky;
+    top: 1rem;
+  }
 }
 
 .ficha-mesa .texto-estado {
@@ -231,7 +267,7 @@
   position: relative;
   aspect-ratio: 4 / 3;
   background-color: #111;
-  border-radius: .75rem;
+  border-radius: var(--ml-radio);
   overflow: hidden;
 }
 
@@ -314,4 +350,19 @@
 .fila-nueva > td {
   background-color: var(--bs-tertiary-bg);
   border-top: 2px solid var(--bs-border-color);
+}
+
+@media (max-width: 575.98px) {
+  .leyenda-sala {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+  }
+
+  .leyenda-sala > .bento-celda {
+    padding: .8rem 1rem;
+  }
+
+  .leyenda-sala .cifra-bento {
+    font-size: 1.85rem;
+  }
 }

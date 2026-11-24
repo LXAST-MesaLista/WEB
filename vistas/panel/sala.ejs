@@ -1,6 +1,10 @@
 <%#
   Sala. Variables: mesas (de la zona elegida), zonas, zona, vista
   ('mesas' o 'mapa'), ahora, cuentas, elegida (mesa del plano), hoy y volver.
+
+  Rejilla Bento (.bento, en mesalista.css): arriba las cifras de cada estado
+  (también hacen de leyenda) y debajo una celda por zona; en la vista de mapa,
+  el plano a la izquierda y la ficha de la mesa elegida a la derecha.
 %>
 <%
 // «Todas» va como zona=todas: url() quita los parámetros vacíos y, sin zona en
@@ -32,20 +36,37 @@ const zonasVisibles = zonas.filter((z) => zona === '' || z === zona);
   </ul>
 </div>
 
-<p class="leyenda small d-flex flex-wrap gap-3 mb-3">
-  <span><span class="punto estado-free"></span> Libres: <%= cuentas.free %></span>
-  <span><span class="punto estado-soon"></span> Reserva próxima</span>
-  <span><span class="punto estado-occupied"></span> Ocupadas: <%= cuentas.occupied %></span>
-<% if (cuentas.blocked) { %>  <span><span class="punto estado-blocked"></span> Bloqueadas: <%= cuentas.blocked %></span>
+<div class="bento">
+<div class="leyenda leyenda-sala" role="list" aria-label="Leyenda y número de mesas">
+  <div class="bento-celda" role="listitem">
+    <span class="bento-etiqueta"><span class="punto estado-free"></span> Libres</span>
+    <span class="cifra-bento mt-auto"><%= cuentas.free %></span>
+  </div>
+  <div class="bento-celda" role="listitem">
+    <span class="bento-etiqueta"><span class="punto estado-soon"></span> Reserva próxima</span>
+    <span class="small text-body-secondary mt-auto">En los próximos 45 min (plano)</span>
+  </div>
+  <div class="bento-celda bento-suave" role="listitem">
+    <span class="bento-etiqueta"><span class="punto estado-occupied"></span> Ocupadas</span>
+    <span class="cifra-bento text-primary-emphasis mt-auto"><%= cuentas.occupied %></span>
+  </div>
+<% if (cuentas.blocked) { -%>
+  <div class="bento-celda" role="listitem">
+    <span class="bento-etiqueta"><span class="punto estado-blocked"></span> Bloqueadas</span>
+    <span class="cifra-bento mt-auto"><%= cuentas.blocked %></span>
+  </div>
 <% } -%>
-  <span><span class="punto estado-out_of_service"></span> Fuera de servicio: <%= cuentas.out_of_service %></span>
-</p>
+  <div class="bento-celda" role="listitem">
+    <span class="bento-etiqueta"><span class="punto estado-out_of_service"></span> Fuera de servicio</span>
+    <span class="cifra-bento mt-auto"><%= cuentas.out_of_service %></span>
+  </div>
+</div>
 
 <% if (vista === 'mesas') { -%>
 <% for (const z of zonasVisibles) { const lista = mesas.filter((t) => t.zone === z && t.joined_to === null); -%>
 <% if (lista.length) { -%>
-<section class="mb-4">
-  <h2 class="h5"><%= z %></h2>
+<section class="bento-celda">
+  <h2 class="h5 mb-3"><%= z %></h2>
   <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xxl-4 g-3">
 <% for (const t of lista) { -%>
     <div class="col"><%- fragmento('panel/_mesa', { t, hoy, volver }) %></div>
@@ -56,13 +77,12 @@ const zonasVisibles = zonas.filter((z) => zona === '' || z === zona);
 <% } -%>
 <% } else { const conPlano = zonasVisibles.filter((z) => mesas.some((t) => t.zone === z && !t.join_only)); -%>
 <% if (!conPlano.length) { -%>
-<p class="text-body-secondary">Las mesas extra no tienen plano: míralas en la vista «Por mesa».</p>
+<p class="bento-celda text-body-secondary mb-0">Las mesas extra no tienen plano: míralas en la vista «Por mesa».</p>
 <% } else { -%>
-<div class="row g-4">
-  <div class="col-xl-8">
+  <div class="bento-celda bento-lg-8 gap-4">
 <% for (const z of conPlano) { -%>
-    <section class="mb-4">
-      <h2 class="h5"><%= z %></h2>
+    <section>
+      <h2 class="h5 mb-3"><%= z %></h2>
       <%- fragmento('panel/_mapa', {
           mesas: mesas.filter((t) => t.zone === z && !t.join_only),
           ahora, elegida: elegida?.id ?? null, enlace,
@@ -70,16 +90,17 @@ const zonasVisibles = zonas.filter((z) => zona === '' || z === zona);
     </section>
 <% } -%>
   </div>
-  <aside class="col-xl-4">
+  <aside class="bento-celda bento-lg-4 ficha-elegida">
+    <span class="bento-etiqueta">Mesa elegida</span>
 <% if (elegida !== null) { -%>
     <%- fragmento('panel/_mesa', { t: elegida, hoy, volver }) %>
 <% } else { -%>
-    <p class="text-body-secondary">Toca una mesa del plano para ver su reserva y sus acciones.</p>
+    <p class="text-body-secondary mb-0">Toca una mesa del plano para ver su reserva y sus acciones.</p>
 <% } -%>
   </aside>
+<% } -%>
+<% } -%>
 </div>
-<% } -%>
-<% } -%>
 
 <div class="modal fade" id="cerrar-local" tabindex="-1" aria-labelledby="cerrar-local-titulo" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

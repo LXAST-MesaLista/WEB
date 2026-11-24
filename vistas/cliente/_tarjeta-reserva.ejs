@@ -8,7 +8,7 @@
     <div><%= Formato.personas(r.party) %></div>
     <%- Formato.estado(r.status) %>
   </div>
-  <span class="text-body-secondary small" aria-hidden="true">
+  <span class="text-body-secondary small text-nowrap" aria-hidden="true">
     <%= { confirmed: 'QR ›', pending_payment: 'Pagar ›' }[r.status] ?? '›' %>
   </span>
 </a>
