@@ -3,9 +3,9 @@
 Este manual explica, para alguien que empieza de cero, qué hacen los dos
 archivos de rutas de MesaLista y cómo viaja la información:
 
-- **`src/rutas.js` de la WEB** ([LXPT-UIB/WEB](https://github.com/LXPT-UIB/WEB)):
+- **`src/rutas.js` de la WEB** ([LXAST-MesaLista/WEB](https://github.com/LXAST-MesaLista/WEB)):
   decide qué página atiende cada dirección que escribe el navegador.
-- **`src/routes.js` del Servidor** ([LXPT-UIB/Servidor](https://github.com/LXPT-UIB/Servidor)):
+- **`src/routes.js` del Servidor** ([LXAST-MesaLista/Servidor](https://github.com/LXAST-MesaLista/Servidor)):
   decide qué código de la API atiende cada petición a `/api/v1`.
 
 Los dos hacen lo mismo con cosas distintas: **reciben una dirección y la mandan

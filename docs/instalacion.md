@@ -5,7 +5,7 @@ La web va en la **misma máquina virtual** que el servidor de MesaLista y con el
 
 | Dirección | Qué es | Quién la atiende |
 |---|---|---|
-| `https://<dominio>/api/v1/` | API del servidor | nginx → `mesalista-api` (Node.js, 127.0.0.1:8091), proyecto [Servidor](https://github.com/LXPT-UIB/Servidor) |
+| `https://<dominio>/api/v1/` | API del servidor | nginx → `mesalista-api` (Node.js, 127.0.0.1:8091), proyecto [Servidor](https://github.com/LXAST-MesaLista/Servidor) |
 | `https://<dominio>/` | Web de clientes | nginx → `mesalista-web` (Node.js, 127.0.0.1:8092), este proyecto |
 | `https://<dominio>/panel/` | Panel del restaurante y administración | nginx → `mesalista-web` |
 | `https://<dominio>/assets/` | CSS, JS e imágenes | nginx, directamente desde `/opt/mesalista-web/publico` |
@@ -33,7 +33,7 @@ ssh -i <ruta-de-tu-clave.pem> <usuario>@<IP-pública>
 Y allí, descarga el proyecto de GitHub junto al del servidor:
 
 ```bash
-git clone https://github.com/LXPT-UIB/WEB.git ~/MesaLista-web
+git clone https://github.com/LXAST-MesaLista/WEB.git ~/MesaLista-web
 ```
 
 Si el repositorio es privado, GitHub pide tu usuario y, como contraseña, un

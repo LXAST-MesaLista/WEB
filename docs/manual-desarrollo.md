@@ -40,7 +40,7 @@ dice que una hora no está libre, la web no lo discute: muestra el mensaje.
 | **Navegador con F12** | Ver la página, la consola y las peticiones |
 
 ```bash
-git clone https://github.com/LXPT-UIB/WEB.git
+git clone https://github.com/LXAST-MesaLista/WEB.git
 cd WEB
 npm install                                        # instala ejs (la única dependencia)
 copy config\config.example.json config\config.json # en Linux/Mac: cp …
@@ -684,7 +684,7 @@ cliente, abre una reserva confirmada y guarda una nota.
 ## 13. Publicar los cambios
 
 1. Prueba en local (también en móvil y en modo oscuro).
-2. `git add`, `git commit` y `git push` a [LXPT-UIB/WEB](https://github.com/LXPT-UIB/WEB).
+2. `git add`, `git commit` y `git push` a [LXAST-MesaLista/WEB](https://github.com/LXAST-MesaLista/WEB).
 3. En la máquina de Azure:
 
    ```bash
