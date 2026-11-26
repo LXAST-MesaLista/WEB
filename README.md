@@ -2,17 +2,17 @@
 
 Web de MesaLista hecha con **Node.js, plantillas EJS, HTML, CSS, JavaScript y
 Bootstrap 5.3**, servida detrás de **nginx**. No tiene base de datos: todo lo
-pide al servidor de MesaLista ([LXPT-UIB/Servidor](https://github.com/LXPT-UIB/Servidor))
+pide al servidor de MesaLista ([LXAST-MesaLista/Servidor](https://github.com/LXAST-MesaLista/Servidor))
 por su API `/api/v1`. La app para Android de los clientes es
-[LXPT-UIB/APP](https://github.com/LXPT-UIB/APP) y usa la misma API.
+[LXAST-MesaLista/APP](https://github.com/LXAST-MesaLista/APP) y usa la misma API.
 
 Las tres partes de MesaLista, cada una en su repositorio:
 
 | Parte | Repositorio |
 |---|---|
-| Servidor: API REST (Node.js + PostgreSQL) y nginx | [LXPT-UIB/Servidor](https://github.com/LXPT-UIB/Servidor) |
-| Web de clientes y panel del restaurante (Node.js) | [LXPT-UIB/WEB](https://github.com/LXPT-UIB/WEB) |
-| App para Android de los clientes (Kotlin, Firebase) | [LXPT-UIB/APP](https://github.com/LXPT-UIB/APP) |
+| Servidor: API REST (Node.js + PostgreSQL) y nginx | [LXAST-MesaLista/Servidor](https://github.com/LXAST-MesaLista/Servidor) |
+| Web de clientes y panel del restaurante (Node.js) | [LXAST-MesaLista/WEB](https://github.com/LXAST-MesaLista/WEB) |
+| App para Android de los clientes (Kotlin, Firebase) | [LXAST-MesaLista/APP](https://github.com/LXAST-MesaLista/APP) |
 
 ```
 Navegador ──HTTPS──> nginx ──┬── /assets ────> archivos de publico/
@@ -52,7 +52,7 @@ servidor de MesaLista ya instalado en la máquina de Azure, se clona este
 proyecto allí y se ejecuta el instalador:
 
 ```bash
-git clone https://github.com/LXPT-UIB/WEB.git ~/MesaLista-web
+git clone https://github.com/LXAST-MesaLista/WEB.git ~/MesaLista-web
 cd ~/MesaLista-web && sudo bash despliegue/instalar.sh
 ```
 
@@ -61,7 +61,7 @@ del servidor (lo lee de `/etc/mesalista/install.env`).
 
 Sin preguntas: `sudo bash despliegue/instalar.sh --no-interactivo`. Para instalar el
 servidor y la web de una vez con Ansible, ver
-[LXPT-UIB/despliegue-mesalista-ansible](https://github.com/LXPT-UIB/despliegue-mesalista-ansible).
+[LXAST-MesaLista/despliegue-mesalista-ansible](https://github.com/LXAST-MesaLista/despliegue-mesalista-ansible).
 
 Seguridad:
 - La web solo usa HTTPS (nginx redirige el puerto 80). La cookie de sesión es `HttpOnly`, `Secure` y `SameSite=Lax`.

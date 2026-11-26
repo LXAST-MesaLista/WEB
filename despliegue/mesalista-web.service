@@ -4,7 +4,7 @@
 
 [Unit]
 Description=MesaLista · web de reservas y panel del restaurante
-Documentation=https://github.com/LXPT-UIB/WEB
+Documentation=https://github.com/LXAST-MesaLista/WEB
 After=network-online.target mesalista-api.service
 Wants=network-online.target
 

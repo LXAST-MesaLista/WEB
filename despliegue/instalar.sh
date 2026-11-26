@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MesaLista · instalación o actualización de la web en la misma máquina que el
 # servidor de MesaLista (Ubuntu Server 24.04, API en Node.js ya instalada como
-# mesalista-api.service por el proyecto LXPT-UIB/Servidor).
+# mesalista-api.service por el proyecto LXAST-MesaLista/Servidor).
 #
 # Desde la copia del proyecto en la máquina (puede estar en la carpeta personal):
 #   sudo bash despliegue/instalar.sh
